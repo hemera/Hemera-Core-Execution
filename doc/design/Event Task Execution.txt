@@ -1,0 +1,82 @@
+Current Design - Notified Buffer with Work-stealing:
+Design:
+1. Execute local task buffer until empty.
+2. Assist other executors at barrier until all executor
+   buffers are empty.
+3. Block until a new task is assigned to local buffer.
+   Go to step 1.
+Advantages:
+1. On-demand executor execution. Executors are always
+   utilizing CPU resources whenever there are tasks to
+   execute, and blocked if there isn't any.
+2. Allows buffering thus enabling caller to go off and
+   perform other operations while submitted tasks are
+   being executed.
+3. Work-stealing allows automated load-balancing between
+   various executors.
+Disadvantages:
+1. If only executor A is assigned with a new task, A
+   still needs to go check all other executors' buffers.
+   Since they are empty anyways, little CPU cycles are
+   wasted.
+   This is a very minor waste that rarely occur and can
+   be ignored on all modern systems.
+
+SynchronousQueue Hand-off:
+Design:
+1. Directly hand-off event tasks to executors using
+   a SynchronousQueue.
+2. Executors block on SynchronousQueue is there is no
+   event tasks to execute, thus preserving resources.
+Advantages:
+1. On-demand executor execution. Executors are always
+   utilizing CPU resources whenever there are tasks to
+   execute, and blocked if there isn't any.
+Disadvantages:
+1. SynchronousQueue does not allow buffering. Therefore,
+   submission caller will block if all executors are
+   busy. This does not allow callers to submit a task
+   then go off and do some other work and come back for
+   the result.
+
+Work-stealing Barrier:
+Design:
+1. Use a work-stealing allowed barrier to enable task
+   assisting among executors.
+2. Put executors to sleep if cycle time limit is not
+   used up.
+Advantages:
+1. Allows buffering thus enabling caller to go off and
+   perform other operations while submitted tasks are
+   being executed.
+2. Work-stealing allows automated load-balancing between
+   various executors.
+Disadvantages:
+1. During executor sleep time, newly submitted tasks
+   are not executed, thus CPU may remain idling, which
+   hinders system performance.
+2. If cycle limit is too small, executors may be running
+   empty loops thus wasting CPU resources.
+
+BufferedQueue Hand-off:
+Design
+1. Submit tasks to executor task buffers.
+2. Executors execute tasks from its own buffers and sleep
+   for a fixed amount of time if buffer is empty.
+3. Interrupt sleep if new tasks come in.
+Advantages:
+1. Allows buffering thus enabling caller to go off and
+   perform other operations while submitted tasks are
+   being executed.
+2. On-demand executor execution. Executors are always
+   utilizing CPU resources whenever there are tasks to
+   execute, and blocked if there isn't any.
+Disadvantages:
+1. Event task execution time may differ greatly, thus
+   some executors may be queued up with a lot of tasks
+   while others are blocked due to empty task buffer.
+   No load balancing.
+
+Centralized Task Pool:
+Disadvantages:
+1. Too much contention on the centralized task pool.

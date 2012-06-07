@@ -1,0 +1,28 @@
+Configuration Notes:
+1. According to the benchmark, the optimal thread setting on
+a dual-core OSX 10.5 is two threads with inter-thread assisting
+turned on.
+2. This is a logical result, since the underlying hardware can
+only provide two threads running simultaneously, the optimal
+setting should be two threads. A setting less than this would
+cause CPU resource to be idle, and a setting more than this
+would cause thread context switches and scheduling overhead.
+3. Inter-thread assisting allows threads that has finished
+their own work to assist slower threads instead of waiting at
+the frame barrier. This better utilizes CPU resource since
+the faster threads are not waiting idle at the barrier anymore,
+but rather they are spending their share of CPU cycle executing
+tasks that need to be completed in the frame cycle. This in
+turn increases the system performance.
+4. Finally, note that the greater the difference between frame
+task execution time is, the greater the effect of assisting is.
+
+Therefore, the optimal thread setting on a typical machine
+should be the following:
+Thread count = number of available processing cores
+Inter-thread assisting = true
+	This switch is achieved by switching the line in FrameBarrier
+	notifyEvent(Object...) method, which resets the arrived count
+	back to 0. If this line is commented out, after the first
+	cycle, the assisting loop will remain open, allowing all new
+	arriving threads to directly go to CyclicBarrier.await().

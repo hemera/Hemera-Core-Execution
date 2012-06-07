@@ -1,0 +1,21 @@
+Load Information:
+Load information should take into account not only the
+operating system level CPU workload and memory usage,
+but also the current average queue length of all the
+assist executors and the number of executors (threads)
+per processing core. It is possible that the system is
+in a waiting state when the query is made, thus giving
+the RMS an inaccurate notification that the runtime is
+completely free, and just right after the message is
+sent, all waiting tasks become alive and start consuming
+system resources fully. Then newly assigned clients by
+the RMS will make the runtime overload.
+
+The ranking system should be implemented on RMS rather
+than on the execution framework. This allows the RMS
+to fully control how the values are interpreted, thus
+allowing RMS to be adjusted easily without affecting
+the entire application system. If it were implemented
+on the execution framework level, then once the ranking
+algorithm is adjusted, all clients and servers must be
+shutdown for re-deploy and restart.
