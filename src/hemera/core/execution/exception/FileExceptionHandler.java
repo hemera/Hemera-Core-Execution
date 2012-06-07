@@ -18,7 +18,7 @@ import hemera.core.utility.logging.FileLogger;
  * <p>
  * Since a <code>FileLogger</code> is used internally
  * for exception logging, the log directory of this
- * implementation depends on <code>ELoggingConfig</code>
+ * implementation depends on <code>CLogging</code>
  * <code>Directory</code> value.
  *
  * @author Yi Wang (Neakor)
