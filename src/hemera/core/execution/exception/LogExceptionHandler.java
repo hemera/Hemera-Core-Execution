@@ -2,7 +2,7 @@ package hemera.core.execution.exception;
 
 import java.util.logging.Logger;
 
-import hemera.core.execution.interfaces.exception.IExceptionHandler;
+import hemera.core.execution.interfaces.IExceptionHandler;
 
 /**
  * <code>LogExceptionHandler</code> defines a handler

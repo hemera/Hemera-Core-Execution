@@ -1,6 +1,6 @@
 package hemera.core.execution.exception;
 
-import hemera.core.execution.interfaces.exception.IExceptionHandler;
+import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.utility.logging.FileLogger;
 
 /**
@@ -25,12 +25,23 @@ import hemera.core.utility.logging.FileLogger;
  * @version 1.0.0
  */
 public class FileExceptionHandler implements IExceptionHandler {
+	/**
+	 * The <code>FileLogger</code> instance.
+	 */
+	private final FileLogger logger;
+	
+	/**
+	 * Constructor of <code>FileExceptionHandler</code>.
+	 */
+	public FileExceptionHandler() {
+		this.logger = FileLogger.getLogger(this.getClass());
+	}
 
 	@Override
 	public void run() {}
 
 	@Override
 	public void handle(final Exception e) {
-		FileLogger.getLogger(this.getClass()).exception(e);
+		this.logger.exception(e);
 	}
 }
