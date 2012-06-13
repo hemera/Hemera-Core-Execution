@@ -4,10 +4,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
-import hemera.core.execution.interfaces.task.IEventTask;
-import hemera.core.execution.interfaces.task.IResultTask;
-import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
-import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>Executor</code> defines the abstraction of an
@@ -129,34 +125,6 @@ abstract class Executor implements IExecutor {
 		this.terminate();
 		this.thread.interrupt();
 	}
-
-	@Override
-	public final IEventTaskHandle assign(final IEventTask task) {
-		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
-		// Perform assignment.
-		final EventExecutable executable = new EventExecutable(task);
-		this.doAssign(executable);
-		return executable;
-	}
-
-	@Override
-	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
-		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
-		// Perform assignment.
-		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
-		this.doAssign(executable);
-		return executable;
-	}
-	
-	/**
-	 * Perform the assignment of given executable.
-	 * @param <E> The <code>Executable</code> type.
-	 * @param executable The <code>E</code> to be
-	 * assigned.
-	 */
-	abstract <E extends Executable> void doAssign(final E executable);
 
 	@Override
 	public boolean hasStarted() {

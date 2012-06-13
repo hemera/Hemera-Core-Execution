@@ -10,6 +10,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.assist.IAssistExecutor;
 import hemera.core.execution.interfaces.assist.IAssistedService;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>AssistExecutor</code> defines implementation
@@ -124,12 +128,8 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	}
 
 	@Override
-	final <E extends Executable> void doAssign(final E executable) {
-		// Insert to the head since only local thread
-		// is operating on the head where other assist
-		// executors operate on the tail, thus lowering
-		// thread contention.
-		this.buffer.offerFirst(executable);
+	public final void terminate() throws Exception {
+		super.terminate();
 		// Wake up idling.
 		this.lock.lock();
 		try {
@@ -138,10 +138,39 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 			this.lock.unlock();
 		}
 	}
+	
+	@Override
+	public final IEventTaskHandle assign(final IEventTask task) {
+		// Check for termination early to avoid object construction.
+		if (this.terminated) return null;
+		// Perform assignment.
+		final EventExecutable executable = new EventExecutable(task);
+		this.doAssign(executable);
+		return executable;
+	}
 
 	@Override
-	public final void terminate() throws Exception {
-		super.terminate();
+	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
+		// Check for termination early to avoid object construction.
+		if (this.terminated) return null;
+		// Perform assignment.
+		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
+		this.doAssign(executable);
+		return executable;
+	}
+	
+	/**
+	 * Perform the assignment of given executable.
+	 * @param <E> The <code>Executable</code> type.
+	 * @param executable The <code>E</code> to be
+	 * assigned.
+	 */
+	private final <E extends Executable> void doAssign(final E executable) {
+		// Insert to the head since only local thread
+		// is operating on the head where other assist
+		// executors operate on the tail, thus lowering
+		// thread contention.
+		this.buffer.offerFirst(executable);
 		// Wake up idling.
 		this.lock.lock();
 		try {
