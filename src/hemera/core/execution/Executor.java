@@ -2,8 +2,12 @@ package hemera.core.execution;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
-import hemera.core.execution.interfaces.exception.IExceptionHandler;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>Executor</code> defines the abstraction of an
@@ -11,21 +15,27 @@ import hemera.core.execution.interfaces.exception.IExceptionHandler;
  * tasks within its own internal thread. This abstraction
  * provides all the necessary implementation guarantees
  * defined by the <code>IExecutor</code> interface.
+ * <p>
+ * This abstraction defines the thread running cycle
+ * of an executor. Subclasses only need to implement a
+ * single running cycle logic without worrying about
+ * the activation, termination or exception handling
+ * issues.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public abstract class Executor implements IExecutor {
+abstract class Executor implements IExecutor {
 	/**
 	 * The executing <code>Thread</code> of this
 	 * executor.
 	 */
-	protected final Thread thread;
+	private final Thread thread;
 	/**
 	 * The <code>IExceptionHandler</code> used for
 	 * task execution graceful exception handling.
 	 */
-	protected final IExceptionHandler handler;
+	final IExceptionHandler handler;
 	/**
 	 * The <code>AtomicBoolean</code> executor thread
 	 * started flag.
@@ -35,7 +45,7 @@ public abstract class Executor implements IExecutor {
 	 * check and set operations are required to ensure
 	 * that only a single invocation passes.
 	 */
-	protected final AtomicBoolean started;
+	private final AtomicBoolean started;
 	/**
 	 * The <code>Boolean</code> executor termination
 	 * flag.
@@ -45,7 +55,7 @@ public abstract class Executor implements IExecutor {
 	 * memory visibility of this flag needs to be
 	 * guaranteed.
 	 */
-	protected volatile boolean terminated;
+	volatile boolean terminated;
 	/**
 	 * The <code>Boolean</code> executor thread terminated
 	 * flag.
@@ -60,7 +70,7 @@ public abstract class Executor implements IExecutor {
 	 * is different from the read-thread thread, memory
 	 * visibility of this flag needs to be guaranteed.
 	 */
-	volatile boolean threadTerminated;
+	private volatile boolean threadTerminated;
 	
 	/**
 	 * Constructor of <code>Executor</code>.
@@ -69,7 +79,7 @@ public abstract class Executor implements IExecutor {
 	 * @param handler The <code>IExceptionHandler</code>
 	 * used for task execution graceful exception handling.
 	 */
-	public Executor(final String name, final IExceptionHandler handler) {
+	Executor(final String name, final IExceptionHandler handler) {
 		this.thread = new Thread(this);
 		this.thread.setName(name);
 		this.handler = handler;
@@ -77,6 +87,31 @@ public abstract class Executor implements IExecutor {
 		this.terminated = false;
 		this.threadTerminated = false;
 	}
+	
+	@Override
+	public final void run() {
+		try {
+			while (!this.terminated) {
+				try {
+					this.doRun();
+				// Catch any runtime exceptions with exception handler.
+				} catch (final Exception e) {
+					this.handler.handle(e);
+				}
+			}
+		} finally {
+			this.threadTerminated = true;
+		}
+	}
+	
+	/**
+	 * Perform the actual executor running logic in a
+	 * single execution cycle.
+	 * @throws Exception If any execution failed. This
+	 * exception does not cause thread termination. It
+	 * is gracefully handled by the exeception handler.
+	 */
+	abstract void doRun() throws Exception;
 
 	@Override
 	public void start() {
@@ -96,12 +131,40 @@ public abstract class Executor implements IExecutor {
 	}
 
 	@Override
+	public final IEventTaskHandle assign(final IEventTask task) {
+		// Check for termination early to avoid object construction.
+		if (this.terminated) return null;
+		// Perform assignment.
+		final EventExecutable executable = new EventExecutable(task);
+		this.doAssign(executable);
+		return executable;
+	}
+
+	@Override
+	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
+		// Check for termination early to avoid object construction.
+		if (this.terminated) return null;
+		// Perform assignment.
+		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
+		this.doAssign(executable);
+		return executable;
+	}
+	
+	/**
+	 * Perform the assignment of given executable.
+	 * @param <E> The <code>EventExecutable</code> type.
+	 * @param executable The <code>E</code> to be
+	 * assigned.
+	 */
+	abstract <E extends EventExecutable> void doAssign(final E executable);
+
+	@Override
 	public boolean hasStarted() {
 		return this.started.get();
 	}
 
 	@Override
 	public boolean hasTerminated() {
-		return this.terminated;
+		return this.threadTerminated;
 	}
 }

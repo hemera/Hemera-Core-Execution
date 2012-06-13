@@ -1,6 +1,7 @@
 package hemera.core.execution;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
@@ -13,83 +14,51 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * implementation of <code>EventExecutable</code> to
  * provide the result task type specific handling.
  * <p>
- * @param <V> The result executable result return type.
+ * @param <R> The result executable result return type.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-class ResultExecutable<V> extends EventExecutable implements IResultTaskHandle<V> {
+class ResultExecutable<R> extends EventExecutable implements IResultTaskHandle<R> {
 	/**
 	 * The <code>IResultTask</code> to be executed.
 	 */
-	private final IResultTask<V> task;
+	private final IResultTask<R> task;
 	/**
-	 * The <code>V</code> execution result.
-	 * <p>
-	 * This reference does not need to be volatile,
-	 * since it is always written before the volatile
-	 * <code>finished</code> flag write and only read
-	 * after reading the <code>finished</code> flag.
-	 * The volatile <code>finished</code> flag ensures
-	 * the happens-before relationship.
+	 * The <code>AtomicReference</code> of the task
+	 * result.
 	 */
-	private V result;
+	private final AtomicReference<R> result;
 
 	/**
 	 * Constructor of <code>ResultExecutable</code>.
 	 * @param task The <code>IResultTask</code> to be executed.
 	 */
-	public ResultExecutable(final IResultTask<V> task) {
+	ResultExecutable(final IResultTask<R> task) {
 		super();
 		this.task = task;
+		this.result = new AtomicReference<R>(null);
 	}
 
 	@Override
-	protected void doExecute() throws Exception {
-		// If has been finished, return.
-		// Do not check has started here since parent
-		// class guarantees only the owner thread can
-		// invoke this method. Also the has started
-		// flag is marked before this invocation. If
-		// checking has started, the task will never
-		// be executed.
-		if (this.hasFinished()) return;
+	void doExecute() throws Exception {
 		try {
-			this.result = this.task.execute();
-		// Guarantees to set finished flag and wake up
-		// waiting threads.
+			final R result = this.task.execute();
+			this.result.compareAndSet(null, result);
 		} finally {
-			this.doFinish();
+			// Guarantees to wake up waiting threads.
+			this.signalAll();
 		}
 	}
 	
 	@Override
-	public V executeAndGet() throws Exception {
-		// Try to execute if does not have an owner.
-		// This guard is needed to prevent the case:
-		// 1. ThreadA gets assigned with this executable.
-		// 2. ThreadA executes this executable and sets
-		//    itself as the owner thread.
-		// 3. ThreadA invokes executeAwait.
-		// 4. Since ThreadA was set as the owner during
-		//    the previous normal execution, it will
-		//    pass the owner thread test in execute method
-		//    and executes the logic for the second time.
-		if (!this.hasStarted()) {
-			this.execute();
-		}
-		// Return result.
-		return this.getAndWait();
-	}
-	
-	@Override
-	public V getAndWait() throws InterruptedException {
+	public R getAndWait() throws InterruptedException {
 		return this.getAndWait(-1, null);
 	}
 	
 	@Override
-	public V getAndWait(final long value, final TimeUnit unit) throws InterruptedException {
-		if(this.await(value, unit)) return this.result;
+	public R getAndWait(final long value, final TimeUnit unit) throws InterruptedException {
+		if(this.await(value, unit)) return this.result.get();
 		else return null;
 	}
 }

@@ -19,14 +19,6 @@ import hemera.core.execution.interfaces.task.handle.ITaskHandle;
  * additional checks are needed prior to invoking the
  * <code>execute</code> method.
  * <p>
- * <code>IExecutable</code> provides thread-ownership
- * guarantee, which ensures only the very first thread
- * that invokes <code>execute</code> is set as the
- * owner of the executable instance. And since only
- * the owner thread is allowed to proceed with actual
- * executable logic execution, all invocations by other
- * threads are directly ignored. 
- * <p>
  * <code>IExecutable</code> should only be used as an
  * internal data structure. External usage should never
  * occur.
@@ -41,18 +33,10 @@ interface IExecutable extends ITaskHandle {
 	 * execution result within the executable unit
 	 * for later retrieval.
 	 * <p>
-	 * This method provides thread-ownership guarantee,
-	 * which ensures only the very first thread that
-	 * invokes <code>execute</code> is set as the owner
-	 * of the executable instance. And since only the
-	 * owner thread is allowed to proceed with actual
-	 * executable logic execution, all invocations by
-	 * other threads are directly ignored. 
-	 * <p>
-	 * This method also automatically performs task
-	 * cancellation detection internally to ensure that
-	 * canceled task is early-exited without actual
-	 * logic execution being performed.
+	 * This method automatically performs cancellation
+	 * and completion detection internally to ensure
+	 * that a canceled or finished task is early-exited
+	 * without actual logic execution being performed.
 	 * @throws Exception If any processing failed.
 	 */
 	public void execute() throws Exception;
