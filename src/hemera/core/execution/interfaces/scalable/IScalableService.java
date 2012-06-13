@@ -47,10 +47,6 @@ public interface IScalableService extends IExecutionService {
 	/**
 	 * Recycle the given executor back to the pool
 	 * for more task assignment.
-	 * <p>
-	 * If the given executor is created as an on-demand
-	 * executor, it will terminate after a period of
-	 * timeout elapses without task assigned to it.
 	 * @param executor The <code>IScaleExecutor</code>
 	 * to recycle.
 	 */
