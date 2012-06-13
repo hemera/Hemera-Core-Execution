@@ -1,4 +1,4 @@
-package hemera.core.execution.interfaces.exception;
+package hemera.core.execution.interfaces;
 
 /**
  * <code>IExceptionHandler</code> defines a centralized
