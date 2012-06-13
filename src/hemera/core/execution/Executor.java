@@ -152,11 +152,11 @@ abstract class Executor implements IExecutor {
 	
 	/**
 	 * Perform the assignment of given executable.
-	 * @param <E> The <code>EventExecutable</code> type.
+	 * @param <E> The <code>Executable</code> type.
 	 * @param executable The <code>E</code> to be
 	 * assigned.
 	 */
-	abstract <E extends EventExecutable> void doAssign(final E executable);
+	abstract <E extends Executable> void doAssign(final E executable);
 
 	@Override
 	public boolean hasStarted() {

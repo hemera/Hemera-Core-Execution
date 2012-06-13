@@ -27,7 +27,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	final IAssistedService group;
 	/**
 	 * The <code>Deque</code> of local task buffer
-	 * of <code>EventExecutable</code>.
+	 * of <code>Executable</code>.
 	 * <p>
 	 * This data structure needs to support a high
 	 * level of concurrency to allow multiple threads
@@ -36,7 +36,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	 * operates on the head end. Assignments are put
 	 * at the head.
 	 */
-	final Deque<EventExecutable> buffer;
+	final Deque<Executable> buffer;
 	/**
 	 * The <code>long</code> executor idle time value.
 	 */
@@ -74,7 +74,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 		super(name, handler);
 		this.group = group;
 		// TODO Replace with Java 7 ConcurrentLinkedDeque.
-		this.buffer = new LinkedBlockingDeque<EventExecutable>();
+		this.buffer = new LinkedBlockingDeque<Executable>();
 		this.lock = new ReentrantLock();
 		this.idle = this.lock.newCondition();
 		this.idletime = idletime;
@@ -83,7 +83,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 
 	@Override
 	public boolean assist() {
-		final EventExecutable executable = this.buffer.pollLast();
+		final Executable executable = this.buffer.pollLast();
 		if (executable == null) return false;
 		try {
 			executable.execute();
@@ -98,7 +98,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 		// Execute local task buffer until empty.
 		// Poll from head to lower contention since
 		// other assisting executors poll from tail.
-		EventExecutable executable = this.buffer.pollFirst();
+		Executable executable = this.buffer.pollFirst();
 		while (executable != null) {
 			executable.execute();
 			executable = this.buffer.pollFirst();
@@ -124,7 +124,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	}
 
 	@Override
-	final <E extends EventExecutable> void doAssign(final E executable) {
+	final <E extends Executable> void doAssign(final E executable) {
 		// Insert to the head since only local thread
 		// is operating on the head where other assist
 		// executors operate on the tail, thus lowering
