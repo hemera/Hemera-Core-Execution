@@ -182,15 +182,4 @@ public interface IExecutionService {
 	 * @return The <code>int</code> number of executors.
 	 */
 	public int getCurrentExecutorCount();
-
-	/**
-	 * Retrieve the averaged executor (thread) count
-	 * per processing core. This value is calculated
-	 * using the total number of executors in the
-	 * system divide by the total number of processing
-	 * cores.
-	 * @return The <code>double</code> average executor
-	 * count per processing core.
-	 */
-	public double getExecutorCountPerCore();
 }
