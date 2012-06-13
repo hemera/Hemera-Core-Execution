@@ -46,7 +46,7 @@ class EventExecutable extends Executable implements IEventTaskHandle {
 	 * @param task The <code>IEventTask</code> to be
 	 * executed.
 	 */
-	public EventExecutable(final IEventTask task) {
+	EventExecutable(final IEventTask task) {
 		this.task = task;
 		this.lock = new ReentrantLock();
 		this.condition = this.lock.newCondition();
