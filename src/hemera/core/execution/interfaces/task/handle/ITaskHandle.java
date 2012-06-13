@@ -4,8 +4,8 @@ package hemera.core.execution.interfaces.task.handle;
  * <code>ITaskHandle</code> defines the interface of a
  * common task handle that is returned to the submitting
  * thread once the task is successfully submitted. It
- * provides the common functionality to cancel the task
- * execution.
+ * provides the common functionality of all types of
+ * task handles.
  * <p>
  * <code>ITaskHandle</code> only provides basic common
  * definition of various type-specific task handles. These
@@ -17,7 +17,7 @@ package hemera.core.execution.interfaces.task.handle;
  * @version 1.0.0
  */
 public interface ITaskHandle {
-	
+
 	/**
 	 * Cancel the task execution.
 	 * <p>
@@ -26,9 +26,22 @@ public interface ITaskHandle {
 	 * @return The <code>Boolean</code> cancellation success
 	 * flag. <code>false</code> if the cancellation failed.
 	 * <code>true</code> if execution is canceled.
-	 * @throws Exception If any cancellation logic failed.
 	 */
-	public boolean cancel() throws Exception;
+	public boolean cancel();
+	
+	/**
+	 * Check if the task execution has started.
+	 * @return <code>true</code> if the execution has
+	 * already started. <code>false</code> otherwise.
+	 */
+	public boolean hasStarted();
+	
+	/**
+	 * Check if the task execution has finished.
+	 * @return <code>true</code> if the execution has
+	 * already finished. <code>false</code> otherwise.
+	 */
+	public boolean hasFinished();
 
 	/**
 	 * Check if the task has been canceled.

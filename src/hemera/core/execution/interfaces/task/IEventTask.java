@@ -7,40 +7,20 @@ package hemera.core.execution.interfaces.task;
  * task is only executed once in a single execution
  * cycle. There is no guarantee as to which executor
  * thread executes the task, thus the contained logic
- * should not have any thread-based assumptions or
- * restrictions.
- * <p>
- * <code>IEventTask</code> can be submitted as either
- * a foreground or background task to the service.
- * <p>
- * If the task is submitted as a foreground task, it
- * is very important that the logic contained within
- * the result task does not involve any long blocking
- * operations. The logic should be computation centric
- * and involves very little I/O operations. Short I/O
- * operations with no or very short blocking time are
- * acceptable.
- * <p>
- * If the task is submitted as a background task, the
- * contained task logic may involve long blocking I/O
- * operations or any operations with long blocking
- * periods, such as long running database committing
- * operations. Once submitted as a background task,
- * the task will be executed with its own dedicated
- * executor.
- * <p>
- * If the task logic requires to be executed for many
- * execution cycles, or every execution cycle, it is
- * advised to submit the task as a cyclic task to the
- * execution service and let the service take care of
- * the repeated execution process internally. This is
- * much more efficient than manually re-submitting
- * the same task to the execution service every single
- * execution cycle.
+ * should not have any concurrency restrictions.
  * <p>
  * <code>IEventTask</code> can be canceled via the
- * returned task handle unit. An even task may only
+ * returned task handle unit. An event task may only
  * be canceled if the execution has not yet started.
+ * Once the execution begins, the canceling the task
+ * has no effect.
+ * <p>
+ * Task instance reuse is not encouraged, since the
+ * same instance of task submitted to the execution
+ * service may be executed concurrently by two separate
+ * executor threads. Unless thread-safety measures are
+ * taken, such cases could cause thread-safety issues
+ * within the task logic.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
