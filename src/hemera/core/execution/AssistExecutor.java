@@ -63,7 +63,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	 * used for task execution graceful exception
 	 * handling.
 	 * @param group The <code>IAssistedService</code>
-	 * shared by all assist executors in the service.
+	 * shared by all assist executors.
 	 * @param idletime The <code>long</code> eager-
 	 * idling waiting time value.
 	 * @param idleunit The <code>TimeUnit</code> eager-
