@@ -1,16 +1,16 @@
-package hemera.core.execution.unittest;
+package hemera.core.execution.unittest.assisted;
 
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-import hemera.core.execution.ExecutionService;
-import hemera.core.execution.exception.FileExceptionHandler;
+import hemera.core.execution.assisted.AssistedService;
+import hemera.core.execution.exception.LogExceptionHandler;
+import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutionService;
-import hemera.core.execution.interfaces.exception.IExceptionHandler;
 import hemera.core.execution.interfaces.task.IEventTask;
 
-public class TestShutdown extends TestCase {
+public class TestAssistedShutdown extends TestCase {
 	
 	private int count;
 	private IExceptionHandler handler;
@@ -22,13 +22,13 @@ public class TestShutdown extends TestCase {
 				System.out.println("Completed");
 			}
 		}));
-		this.count = Runtime.getRuntime().availableProcessors();
-		this.handler = new FileExceptionHandler();
+		this.count = Runtime.getRuntime().availableProcessors()+1;
+		this.handler = new LogExceptionHandler();
 	}
 
 	public void testGraceful() {
 		for(int i = 0; i < 1000; i++) {
-			final IExecutionService service = new ExecutionService(this.count, this.handler);
+			final IExecutionService service = new AssistedService(handler, count, 100, TimeUnit.MILLISECONDS);
 			service.activate();
 			service.shutdown();
 		}
@@ -36,9 +36,9 @@ public class TestShutdown extends TestCase {
 	
 	public void testGracefulWait() throws InterruptedException {
 		for(int i = 0; i < 10; i++) {
-			final IExecutionService service = new ExecutionService(this.count, this.handler);
+			final IExecutionService service = new AssistedService(handler, count, 100, TimeUnit.MILLISECONDS);
 			service.activate();
-			service.submitBackground(new BlockTask());
+			service.submit(new BlockTask());
 			service.shutdownAndWait();
 			System.out.println("Finished one.");
 		}
@@ -46,7 +46,7 @@ public class TestShutdown extends TestCase {
 	
 	public void testForceful() {
 		for(int i = 0; i < 1000; i++) {
-			final IExecutionService service = new ExecutionService(this.count, this.handler);
+			final IExecutionService service = new AssistedService(handler, count, 100, TimeUnit.MILLISECONDS);
 			service.activate();
 			service.forceShutdown();
 		}
@@ -54,7 +54,7 @@ public class TestShutdown extends TestCase {
 	
 	public void testTimedForceful() throws InterruptedException {
 		for(int i = 0; i < 1000; i++) {
-			final IExecutionService service = new ExecutionService(this.count, this.handler);
+			final IExecutionService service = new AssistedService(handler, count, 100, TimeUnit.MILLISECONDS);
 			service.activate();
 			service.forceShutdown(10, TimeUnit.MILLISECONDS);
 		}

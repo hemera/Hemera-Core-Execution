@@ -1,6 +1,4 @@
-package hemera.core.execution.unittest.task;
-
-import hemera.core.execution.unittest.AbstractTest;
+package hemera.core.execution.unittest.assisted;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,18 +20,18 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * a multiple times longer.
  * <p>
  * Without work-stealing:
- * Even-20 duration:   34044ms
- * Uneven-20 duration: 51177ms
+ * Even-20 duration:   9465ms
+ * Uneven-20 duration: 10323ms
  * <p>
  * With work-stealing:
- * Even-20 duration:   33499ms
- * Uneven-20 duration: 34352ms
+ * Even-20 duration:   9459ms
+ * Uneven-20 duration: 9616ms
  * <p>
  * As data above shows, with work-stealing, performance
  * of uneven-distribution, which is closer to real-world
  * conditions is much better.
  */
-public class TestTaskForeground extends AbstractTest {
+public class TestAssistedService extends AbstractAssistedTest {
 
 	private int multiplier;
 	private int[] array;
@@ -77,7 +75,7 @@ public class TestTaskForeground extends AbstractTest {
 		try {
 			final long start = System.nanoTime();
 			for(int i = 0; i < count; i++) {
-				handles[i] = this.service.submitForeground(tasks[i]);
+				handles[i] = this.service.submit(tasks[i]);
 			}
 			int result = 0;
 			for(int i = 0; i < count; i++) result += handles[i].getAndWait();
@@ -97,7 +95,7 @@ public class TestTaskForeground extends AbstractTest {
 		try {
 			final long start = System.nanoTime();
 			for(int i = 0; i < count; i++) {
-				handles[i] = this.service.submitForeground(tasks[i]);
+				handles[i] = this.service.submit(tasks[i]);
 			}
 			int result = 0;
 			for(int i = 0; i < count; i++) result += handles[i].getAndWait();
