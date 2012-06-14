@@ -148,13 +148,10 @@ public class ScalableService extends ExecutionService implements IScalableServic
 
 	@Override
 	protected void doShutdownAndWait() throws InterruptedException {
-		// Gracefully terminate all active executors.
-		for (final IExecutor executor : this.executors) {
-			executor.terminate();
-		}
 		// Remove and wait for all executor threads to terminate.
 		while (!this.executors.isEmpty()) {
 			final IExecutor executor = this.executors.poll();
+			executor.terminate();
 			while (!executor.hasTerminated()) {
 				TimeUnit.MILLISECONDS.sleep(5);
 			}
