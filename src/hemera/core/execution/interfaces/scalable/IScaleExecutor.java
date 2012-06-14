@@ -1,6 +1,10 @@
 package hemera.core.execution.interfaces.scalable;
 
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>IScaleExecutor</code> defines an executor
@@ -36,6 +40,41 @@ import hemera.core.execution.interfaces.IExecutor;
  * @version 1.0.0
  */
 public interface IScaleExecutor extends IExecutor {
+	
+	/**
+	 * Assign the given event task to this executor
+	 * if and only if there is no existing assigned
+	 * task yet.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * @param task The <code>IEventTask</code> to be
+	 * executed.
+	 * @return The <code>IEventTaskHandle</code> for
+	 * the assigned event task. <code>null</code> if
+	 * the executor has been terminated or there is
+	 * already a task assigned to this executor.
+	 */
+	public IEventTaskHandle assign(final IEventTask task);
+	
+	/**
+	 * Assign the given result task to this executor
+	 * if and only if there is no existing assigned
+	 * task yet.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * @param V The result task result type.
+	 * @param task The <code>IResultTask</code> to be
+	 * executed.
+	 * @return The <code>IResultTaskHandle</code> for
+	 * the assigned result task. <code>null</code> if
+	 * the executor has been terminated or there is
+	 * already a task assigned to this executor.
+	 */
+	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task);
 
 	/**
 	 * Check if this instance of executor is an on-
