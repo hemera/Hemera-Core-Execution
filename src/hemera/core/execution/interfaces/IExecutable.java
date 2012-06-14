@@ -1,12 +1,12 @@
-package hemera.core.execution;
+package hemera.core.execution.interfaces;
 
 import hemera.core.execution.interfaces.task.handle.ITaskHandle;
 
 /**
  * <code>IExecutable</code> defines the interface of an
- * intermediate compound unit that provides the support
- * to store the execution result and various handling
- * methods provided by <code>ITaskHandle</code>.
+ * intermediate composite unit that is a task to be
+ * executed, as well as the handle for the task. This
+ * is an internal structure used by execution services.
  * <p>
  * <code>IExecutable</code> implementation is required
  * to provide all necessary support for task handling
@@ -20,13 +20,13 @@ import hemera.core.execution.interfaces.task.handle.ITaskHandle;
  * <code>execute</code> method.
  * <p>
  * <code>IExecutable</code> should only be used as an
- * internal data structure. External usage should never
+ * internal data structure. External usage should not
  * occur.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-interface IExecutable extends ITaskHandle {
+public interface IExecutable extends ITaskHandle {
 	
 	/**
 	 * Execute the internal task logic and store the

@@ -1,4 +1,4 @@
-package hemera.core.execution;
+package hemera.core.execution.scalable;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -6,6 +6,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import hemera.core.execution.Executor;
+import hemera.core.execution.executable.EventExecutable;
+import hemera.core.execution.executable.Executable;
+import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.interfaces.scalable.IScaleExecutor;
@@ -22,7 +26,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-class ScaleExecutor extends Executor implements IScaleExecutor {
+public class ScaleExecutor extends Executor implements IScaleExecutor {
 	/**
 	 * The <code>IScalableService</code> group.
 	 */
@@ -76,7 +80,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	 * @param group The <code>IScalableService</code>
 	 * shared by all scale executors.
 	 */
-	ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group) {
+	public ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group) {
 		this(name, handler, group, false, -1, null);
 	}
 	
@@ -100,7 +104,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	 * @param timeoutUnit The <code>TimeUnit</code> the
 	 * timeout value is in.
 	 */
-	ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group,
+	public ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group,
 			final long timeoutValue, final TimeUnit timeoutUnit) {
 		this(name, handler, group, true, timeoutValue, timeoutUnit);
 	}
@@ -136,7 +140,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	}
 
 	@Override
-	final void doRun() throws Exception {
+	protected final void doRun() throws Exception {
 		// Execute local task and set it to null to allow new assignments.
 		final Executable executable = this.task.getAndSet(null);
 		executable.execute();

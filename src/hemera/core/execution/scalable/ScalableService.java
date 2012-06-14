@@ -1,4 +1,4 @@
-package hemera.core.execution;
+package hemera.core.execution.scalable;
 
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import hemera.core.execution.ExecutionService;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
 import hemera.core.execution.interfaces.scalable.IScalableService;
@@ -110,7 +111,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 
 	@Override
-	void doActivate() {
+	protected void doActivate() {
 		// Create and start initial executors.
 		for (int i = 0; i < this.minCount; i++) {
 			final String name = "Initial-ScaleExecutor-" + i;
@@ -137,7 +138,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 
 	@Override
-	void doShutdown() {
+	protected void doShutdown() {
 		// Gracefully terminate and remove all active executors.
 		while (!this.executors.isEmpty()) {
 			final IExecutor executor = this.executors.poll();
@@ -146,7 +147,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 
 	@Override
-	void doShutdownAndWait() throws InterruptedException {
+	protected void doShutdownAndWait() throws InterruptedException {
 		// Gracefully terminate all active executors.
 		for (final IExecutor executor : this.executors) {
 			executor.terminate();
@@ -161,7 +162,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 
 	@Override
-	void doForceShutdown() {
+	protected void doForceShutdown() {
 		// Forcefully terminate and remove all active executors.
 		while (!this.executors.isEmpty()) {
 			final IExecutor executor = this.executors.poll();
@@ -170,7 +171,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 
 	@Override
-	void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException {
+	protected void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException {
 		// Gracefully terminate all active executors.
 		for (final IExecutor executor : this.executors) {
 			executor.terminate();
@@ -185,12 +186,12 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 	
 	@Override
-	IEventTaskHandle doSubmit(final IEventTask task) throws Exception {
+	protected IEventTaskHandle doSubmit(final IEventTask task) throws Exception {
 		return this.nextScaleExecutor().assign(task);
 	}
 	
 	@Override
-	<V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception {
+	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception {
 		return this.nextScaleExecutor().assign(task);
 	}
 	

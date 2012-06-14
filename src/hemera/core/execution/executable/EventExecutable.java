@@ -1,4 +1,4 @@
-package hemera.core.execution;
+package hemera.core.execution.executable;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -18,7 +18,7 @@ import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-class EventExecutable extends Executable implements IEventTaskHandle {
+public class EventExecutable extends Executable implements IEventTaskHandle {
 	/**
 	 * The <code>IEventTask</code> to be executed.
 	 */
@@ -35,7 +35,7 @@ class EventExecutable extends Executable implements IEventTaskHandle {
 	/**
 	 * Constructor of <code>EventExecutable</code>.
 	 */
-	EventExecutable() {
+	protected EventExecutable() {
 		this.task = null;
 		this.lock = new ReentrantLock();
 		this.condition = this.lock.newCondition();
@@ -46,14 +46,14 @@ class EventExecutable extends Executable implements IEventTaskHandle {
 	 * @param task The <code>IEventTask</code> to be
 	 * executed.
 	 */
-	EventExecutable(final IEventTask task) {
+	public EventExecutable(final IEventTask task) {
 		this.task = task;
 		this.lock = new ReentrantLock();
 		this.condition = this.lock.newCondition();
 	}
 
 	@Override
-	void doExecute() throws Exception {
+	protected void doExecute() throws Exception {
 		try {
 			this.task.execute();
 		} finally {
@@ -65,7 +65,7 @@ class EventExecutable extends Executable implements IEventTaskHandle {
 	/**
 	 * Signal all waiting threads to wake up.
 	 */
-	void signalAll() {
+	protected void signalAll() {
 		this.lock.lock();
 		try {
 			this.condition.signalAll();

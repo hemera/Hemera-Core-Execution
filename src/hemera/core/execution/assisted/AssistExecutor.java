@@ -1,4 +1,4 @@
-package hemera.core.execution;
+package hemera.core.execution.assisted;
 
 import java.util.Deque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -7,6 +7,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import hemera.core.execution.Executor;
+import hemera.core.execution.executable.EventExecutable;
+import hemera.core.execution.executable.Executable;
+import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
@@ -23,12 +27,12 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-class AssistExecutor extends Executor implements IAssistExecutor {
+public class AssistExecutor extends Executor implements IAssistExecutor {
 	/**
 	 * The <code>IAssistedService</code> shared by all
 	 * assist executors in the service.
 	 */
-	final IAssistedService group;
+	private final IAssistedService group;
 	/**
 	 * The <code>Deque</code> of local task buffer
 	 * of <code>Executable</code>.
@@ -40,16 +44,16 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	 * operates on the head end. Assignments are put
 	 * at the head.
 	 */
-	final Deque<Executable> buffer;
+	private final Deque<Executable> buffer;
 	/**
 	 * The <code>long</code> executor idle time value.
 	 */
-	final long idletime;
+	private final long idletime;
 	/**
 	 * The <code>TimeUnit</code> executor idle time
 	 * unit.
 	 */
-	final TimeUnit idleunit;
+	private final TimeUnit idleunit;
 	/**
 	 * The idling <code>Lock</code>.
 	 */
@@ -73,7 +77,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	 * @param idleunit The <code>TimeUnit</code> eager-
 	 * idling waiting time unit.
 	 */
-	AssistExecutor(final String name, final IExceptionHandler handler, final IAssistedService group,
+	public AssistExecutor(final String name, final IExceptionHandler handler, final IAssistedService group,
 			final long idletime, final TimeUnit idleunit) {
 		super(name, handler);
 		this.group = group;
@@ -98,7 +102,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	}
 
 	@Override
-	final void doRun() throws Exception {
+	protected final void doRun() throws Exception {
 		// Execute local task buffer until empty.
 		// Poll from head to lower contention since
 		// other assisting executors poll from tail.

@@ -1,4 +1,4 @@
-package hemera.core.execution;
+package hemera.core.execution.executable;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,7 +19,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-class ResultExecutable<R> extends EventExecutable implements IResultTaskHandle<R> {
+public class ResultExecutable<R> extends EventExecutable implements IResultTaskHandle<R> {
 	/**
 	 * The <code>IResultTask</code> to be executed.
 	 */
@@ -34,14 +34,14 @@ class ResultExecutable<R> extends EventExecutable implements IResultTaskHandle<R
 	 * Constructor of <code>ResultExecutable</code>.
 	 * @param task The <code>IResultTask</code> to be executed.
 	 */
-	ResultExecutable(final IResultTask<R> task) {
+	public ResultExecutable(final IResultTask<R> task) {
 		super();
 		this.task = task;
 		this.result = new AtomicReference<R>(null);
 	}
 
 	@Override
-	void doExecute() throws Exception {
+	protected void doExecute() throws Exception {
 		try {
 			final R result = this.task.execute();
 			this.result.compareAndSet(null, result);

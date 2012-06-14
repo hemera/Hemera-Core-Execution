@@ -21,7 +21,7 @@ import hemera.core.execution.interfaces.IExecutor;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-abstract class Executor implements IExecutor {
+public abstract class Executor implements IExecutor {
 	/**
 	 * The executing <code>Thread</code> of this
 	 * executor.
@@ -31,7 +31,7 @@ abstract class Executor implements IExecutor {
 	 * The <code>IExceptionHandler</code> used for
 	 * task execution graceful exception handling.
 	 */
-	final IExceptionHandler handler;
+	protected final IExceptionHandler handler;
 	/**
 	 * The <code>AtomicBoolean</code> executor thread
 	 * started flag.
@@ -51,7 +51,7 @@ abstract class Executor implements IExecutor {
 	 * memory visibility of this flag needs to be
 	 * guaranteed.
 	 */
-	volatile boolean terminated;
+	protected volatile boolean terminated;
 	/**
 	 * The <code>Boolean</code> executor thread terminated
 	 * flag.
@@ -75,7 +75,7 @@ abstract class Executor implements IExecutor {
 	 * @param handler The <code>IExceptionHandler</code>
 	 * used for task execution graceful exception handling.
 	 */
-	Executor(final String name, final IExceptionHandler handler) {
+	protected Executor(final String name, final IExceptionHandler handler) {
 		this.thread = new Thread(this);
 		this.thread.setName(name);
 		this.handler = handler;
@@ -107,7 +107,7 @@ abstract class Executor implements IExecutor {
 	 * exception does not cause thread termination. It
 	 * is gracefully handled by the exeception handler.
 	 */
-	abstract void doRun() throws Exception;
+	protected abstract void doRun() throws Exception;
 
 	@Override
 	public void start() {

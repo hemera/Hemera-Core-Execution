@@ -21,16 +21,16 @@ import hemera.core.utility.logging.FileLogger;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-abstract class ExecutionService implements IExecutionService {
+public abstract class ExecutionService implements IExecutionService {
 	/**
 	 * The <code>FileLogger</code> instance.
 	 */
-	final FileLogger logger;
+	protected final FileLogger logger;
 	/**
 	 * The <code>IExceptionHandler</code> instance used
 	 * to gracefully allow executors handle exceptions.
 	 */
-	final IExceptionHandler handler;
+	protected final IExceptionHandler handler;
 	/**
 	 * The <code>AtomicBoolean</code> activated flag.
 	 * <p>
@@ -73,7 +73,7 @@ abstract class ExecutionService implements IExecutionService {
 	/**
 	 * Perform the service type specific activation.
 	 */
-	abstract void doActivate();
+	protected abstract void doActivate();
 
 	@Override
 	public void shutdown() {
@@ -84,7 +84,7 @@ abstract class ExecutionService implements IExecutionService {
 	/**
 	 * Perform service type specific graceful shutdown.
 	 */
-	abstract void doShutdown();
+	protected abstract void doShutdown();
 	
 	@Override
 	public void shutdownAndWait() throws InterruptedException {
@@ -98,7 +98,7 @@ abstract class ExecutionService implements IExecutionService {
 	 * @throws InterruptedException If waiting process
 	 * is interrupted.
 	 */
-	abstract void doShutdownAndWait() throws InterruptedException;
+	protected abstract void doShutdownAndWait() throws InterruptedException;
 
 	@Override
 	public void forceShutdown() {
@@ -109,7 +109,7 @@ abstract class ExecutionService implements IExecutionService {
 	/**
 	 * Perform service type specific force shutdown.
 	 */
-	abstract void doForceShutdown();
+	protected abstract void doForceShutdown();
 
 	@Override
 	public void forceShutdown(final long time, final TimeUnit unit) throws InterruptedException {
@@ -125,7 +125,7 @@ abstract class ExecutionService implements IExecutionService {
 	 * @throws InterruptedException If waiting process is
 	 * interrupted.
 	 */
-	abstract void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException;
+	protected abstract void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException;
 
 	@Override
 	public IEventTaskHandle submit(final IEventTask task) throws Exception {
@@ -142,7 +142,7 @@ abstract class ExecutionService implements IExecutionService {
 	 * @throws Exception If any process failed during
 	 * the submission.
 	 */
-	abstract IEventTaskHandle doSubmit(final IEventTask task) throws Exception;
+	protected abstract IEventTaskHandle doSubmit(final IEventTask task) throws Exception;
 
 	@Override
 	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) throws Exception {
@@ -160,7 +160,7 @@ abstract class ExecutionService implements IExecutionService {
 	 * @throws Exception If any process failed during
 	 * the submission.
 	 */
-	abstract <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception;
+	protected abstract <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception;
 	
 	/**
 	 * Check all the exception causing status.

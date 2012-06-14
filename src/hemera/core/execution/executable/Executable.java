@@ -1,4 +1,6 @@
-package hemera.core.execution;
+package hemera.core.execution.executable;
+
+import hemera.core.execution.interfaces.IExecutable;
 
 /**
  * <code>Executable</code> defines the abstraction of
@@ -9,7 +11,7 @@ package hemera.core.execution;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-abstract class Executable implements IExecutable {
+public abstract class Executable implements IExecutable {
 	/**
 	 * The <code>Boolean</code> started flag.
 	 * <p>
@@ -18,7 +20,7 @@ abstract class Executable implements IExecutable {
 	 * cancellation thread, the memory visibility needs
 	 * to be guaranteed.
 	 */
-	volatile boolean started;
+	protected volatile boolean started;
 	/**
 	 * The <code>Boolean</code> finished flag.
 	 * <p>
@@ -27,7 +29,7 @@ abstract class Executable implements IExecutable {
 	 * reading thread, the memory visibility needs to
 	 * be guaranteed.
 	 */
-	volatile boolean finished;
+	protected volatile boolean finished;
 	/**
 	 * The <code>Boolean</code> canceled flag.
 	 * <p>
@@ -37,12 +39,12 @@ abstract class Executable implements IExecutable {
 	 * memory visibility needs to be guaranteed, in order
 	 * for retrieval operations to early exit.
 	 */
-	volatile boolean canceled;
+	protected volatile boolean canceled;
 
 	/**
 	 * Constructor of <code>Executable</code>.
 	 */
-	Executable() {
+	protected Executable() {
 		this.started = false;
 		this.finished = false;
 		this.canceled = false;
@@ -64,7 +66,7 @@ abstract class Executable implements IExecutable {
 	 * Execute the task logic.
 	 * @throws Exception if any processing failed.
 	 */
-	abstract void doExecute() throws Exception;
+	protected abstract void doExecute() throws Exception;
 	
 	@Override
 	public boolean cancel() {
