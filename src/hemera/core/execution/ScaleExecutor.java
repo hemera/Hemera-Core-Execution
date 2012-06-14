@@ -35,7 +35,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	/**
 	 * The <code>long</code> timeout value used to
 	 * terminate the executor if it is an on-demand
-	 * executor after task executio completion.
+	 * executor after task execution completion.
 	 */
 	private final long timeoutValue;
 	/**
