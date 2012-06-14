@@ -70,7 +70,7 @@ public abstract class Executable implements IExecutable {
 	
 	@Override
 	public boolean cancel() {
-		if(this.hasStarted()) return false;
+		if (this.hasStarted()) return false;
 		else {
 			this.canceled = true;
 			return true;

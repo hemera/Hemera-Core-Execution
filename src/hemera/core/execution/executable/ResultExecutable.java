@@ -58,7 +58,7 @@ public class ResultExecutable<R> extends EventExecutable implements IResultTaskH
 	
 	@Override
 	public R getAndWait(final long value, final TimeUnit unit) throws InterruptedException {
-		if(this.await(value, unit)) return this.result.get();
+		if (super.await(value, unit)) return this.result.get();
 		else return null;
 	}
 }

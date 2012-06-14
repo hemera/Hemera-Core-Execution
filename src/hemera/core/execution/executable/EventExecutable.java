@@ -82,17 +82,17 @@ public class EventExecutable extends Executable implements IEventTaskHandle {
 	@Override
 	public boolean await(final long value, final TimeUnit unit) throws InterruptedException {
 		// Check finished/canceled to early return.
-		if(this.hasFinished()) return true;
-		else if(this.isCanceled()) return false;
+		if (this.hasFinished()) return true;
+		else if (this.isCanceled()) return false;
 		// Wait.
 		boolean signaled = false;
 		this.lock.lock();
 		try {
 			// Check flags in case signal was sent before this lock is obtained.
-			if(this.hasFinished()) return true;
-			else if(this.isCanceled()) return false;
+			if (this.hasFinished()) return true;
+			else if (this.isCanceled()) return false;
 			// Unconditional wait.
-			if(value < 0 || unit == null) {
+			if (value < 0 || unit == null) {
 				this.condition.await();
 				signaled = true;
 			}
@@ -104,8 +104,8 @@ public class EventExecutable extends Executable implements IEventTaskHandle {
 			this.lock.unlock();
 		}
 		// If signaled, condition return result.
-		if(signaled) {
-			if(this.isCanceled()) return false;
+		if (signaled) {
+			if (this.isCanceled()) return false;
 			else return true;
 			// Otherwise, return false.
 		} else return false;
