@@ -253,6 +253,8 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		if (!succeeded) {
 			this.logger.warning("Excess executor detected and terminated: " + executor.toString());
 			executor.terminate();
+			this.availables.remove(executor);
+			this.executors.remove(executor);
 		}
 	}
 	

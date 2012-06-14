@@ -20,11 +20,13 @@ public class AbstractAssistedTest extends TestCase {
 		final int count = Runtime.getRuntime().availableProcessors()+1;
 		this.service = new AssistedService(handler, count, 100, TimeUnit.MILLISECONDS);
 		this.service.activate();
+		System.out.println("Activated.");
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		this.service.shutdown();
+		System.out.println("Completed.");
 	}
 }

@@ -109,4 +109,17 @@ public interface IExecutor extends Runnable {
 	 * terminated. <code>false</code> otherwise.
 	 */
 	public boolean hasTerminated();
+	
+	/**
+	 * Check if the executor has been requested to
+	 * terminate as soon as possible.
+	 * <p>
+	 * This method returns the most update to date result
+	 * as its implementation should ensure the memory
+	 * visibility of the status.
+	 * @return <code>true</code> if the executor has
+	 * been requested to terminate as soon as possible.
+	 * <code>false</code> otherwise.
+	 */
+	public boolean hasRequestedTermination();
 }

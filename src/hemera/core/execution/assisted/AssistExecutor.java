@@ -118,7 +118,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		this.lock.lock();
 		try {
 			// Check for termination.
-			if (this.terminated) return;
+			if (this.hasRequestedTermination()) return;
 			// Do not go into idling if there are tasks.
 			else if (!this.buffer.isEmpty()) return;
 			// Idle otherwise. Eager wake up to recover other
@@ -130,11 +130,11 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 			this.lock.unlock();
 		}
 	}
-
-	@Override
-	public final void terminate() {
-		super.terminate();
-		// Wake up idling.
+	
+	/**
+	 * Signal idling to wake up.
+	 */
+	private void wakeup() {
 		this.lock.lock();
 		try {
 			this.idle.signalAll();
@@ -142,11 +142,18 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 			this.lock.unlock();
 		}
 	}
+
+	@Override
+	public final void terminate() {
+		super.terminate();
+		// Wake up idling.
+		this.wakeup();
+	}
 	
 	@Override
 	public final IEventTaskHandle assign(final IEventTask task) {
 		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
+		if (this.hasRequestedTermination()) return null;
 		// Perform assignment.
 		final EventExecutable executable = new EventExecutable(task);
 		this.doAssign(executable);
@@ -156,7 +163,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	@Override
 	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
 		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
+		if (this.hasRequestedTermination()) return null;
 		// Perform assignment.
 		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
 		this.doAssign(executable);
@@ -176,12 +183,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// thread contention.
 		this.buffer.offerFirst(executable);
 		// Wake up idling.
-		this.lock.lock();
-		try {
-			this.idle.signalAll();
-		} finally {
-			this.lock.unlock();
-		}
+		this.wakeup();
 	}
 
 	@Override

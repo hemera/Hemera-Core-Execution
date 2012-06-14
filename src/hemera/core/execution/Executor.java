@@ -51,7 +51,7 @@ public abstract class Executor implements IExecutor {
 	 * memory visibility of this flag needs to be
 	 * guaranteed.
 	 */
-	protected volatile boolean terminated;
+	private volatile boolean requestedTermination;
 	/**
 	 * The <code>Boolean</code> executor thread terminated
 	 * flag.
@@ -80,14 +80,14 @@ public abstract class Executor implements IExecutor {
 		this.thread.setName(name);
 		this.handler = handler;
 		this.started = new AtomicBoolean(false);
-		this.terminated = false;
+		this.requestedTermination = false;
 		this.threadTerminated = false;
 	}
 	
 	@Override
 	public final void run() {
 		try {
-			while (!this.terminated) {
+			while (!this.requestedTermination) {
 				try {
 					this.doRun();
 				// Catch any runtime exceptions with exception handler.
@@ -117,7 +117,7 @@ public abstract class Executor implements IExecutor {
 
 	@Override
 	public void terminate() {
-		this.terminated = true;
+		this.requestedTermination = true;
 	}
 	
 	@Override
@@ -134,5 +134,10 @@ public abstract class Executor implements IExecutor {
 	@Override
 	public boolean hasTerminated() {
 		return this.threadTerminated;
+	}
+	
+	@Override
+	public boolean hasRequestedTermination() {
+		return this.requestedTermination;
 	}
 }

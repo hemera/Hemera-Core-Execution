@@ -151,7 +151,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		this.lock.lock();
 		try {
 			// Check for termination.
-			if (this.terminated) return;
+			if (this.hasRequestedTermination()) return;
 			// Do not go into waiting if there is a task.
 			else if (this.task.get() != null) return;
 			// If this executor is on-demand, wait on timeout.
@@ -168,11 +168,11 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 			this.lock.unlock();
 		}
 	}
-
-	@Override
-	public final void terminate() {
-		super.terminate();
-		// Wake up waiting.
+	
+	/**
+	 * Signal waiting to wake up.
+	 */
+	private void wakeup() {
 		this.lock.lock();
 		try {
 			this.wait.signalAll();
@@ -182,22 +182,34 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	}
 
 	@Override
+	public final void terminate() {
+		super.terminate();
+		// Wake up waiting.
+		this.wakeup();
+	}
+
+	@Override
 	public final IEventTaskHandle assign(final IEventTask task) {
 		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
+		if (this.hasRequestedTermination()) return null;
 		// Try to assign.
 		final EventExecutable executable = new EventExecutable(task);
 		final boolean succeeded = this.task.compareAndSet(null, executable);
 		// There is a task assigned already.
 		if (!succeeded) return null;
-		// Assigned, return executable as handle.
-		else return executable;
+		// Succeeded.
+		else {
+			// Wake up waiting.
+			this.wakeup();
+			// Return executable as handle.
+			return executable;
+		}
 	}
 
 	@Override
 	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
 		// Check for termination early to avoid object construction.
-		if (this.terminated) return null;
+		if (this.hasRequestedTermination()) return null;
 		// Try to assign.
 		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
 		final boolean succeeded = this.task.compareAndSet(null, executable);
@@ -206,12 +218,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		// Succeeded.
 		else {
 			// Wake up waiting.
-			this.lock.lock();
-			try {
-				this.wait.signalAll();
-			} finally {
-				this.lock.unlock();
-			}
+			this.wakeup();
 			// Return executable as handle.
 			return executable;
 		}
