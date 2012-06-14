@@ -128,7 +128,7 @@ class AssistExecutor extends Executor implements IAssistExecutor {
 	}
 
 	@Override
-	public final void terminate() throws Exception {
+	public final void terminate() {
 		super.terminate();
 		// Wake up idling.
 		this.lock.lock();

@@ -47,9 +47,8 @@ public interface IExecutor extends Runnable {
 	 * it is already in the process of execution. It
 	 * is guaranteed that the executor will terminate
 	 * after it completes the started execution.
-	 * @throws Exception If termination logic failed.
 	 */
-	public void terminate() throws Exception;
+	public void terminate();
 	
 	/**
 	 * Forcefully terminate the executor.
@@ -57,9 +56,8 @@ public interface IExecutor extends Runnable {
 	 * This method guarantees to terminate the executor
 	 * immediately. If the executor is in the process of
 	 * execution, the execution is interrupted.
-	 * @throws Exception If termination logic failed.
 	 */
-	public void forceTerminate() throws Exception;
+	public void forceTerminate();
 	
 	/**
 	 * Assign the given event task to this executor.

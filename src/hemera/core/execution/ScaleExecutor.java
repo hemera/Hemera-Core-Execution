@@ -62,6 +62,48 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	 * different threads.
 	 */
 	private final AtomicReference<Executable> task;
+	
+	/**
+	 * Constructor of <code>ScaleExecutor</code>.
+	 * <p>
+	 * This constructor creates an initial executor that
+	 * is part of the initial minimum executor pool.
+	 * @param name The <code>String</code> name of this
+	 * executor thread.
+	 * @param handler The <code>IExceptionHandler</code>
+	 * used for task execution graceful exception
+	 * handling.
+	 * @param group The <code>IScalableService</code>
+	 * shared by all scale executors.
+	 */
+	ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group) {
+		this(name, handler, group, false, -1, null);
+	}
+	
+	/**
+	 * Constructor of <code>ScaleExecutor</code>.
+	 * <p>
+	 * This constructor creates an on-demand executor
+	 * that will terminate if there are no new tasks
+	 * assigned to it within the timeout period.
+	 * @param name The <code>String</code> name of this
+	 * executor thread.
+	 * @param handler The <code>IExceptionHandler</code>
+	 * used for task execution graceful exception
+	 * handling.
+	 * @param group The <code>IScalableService</code>
+	 * shared by all scale executors.
+	 * @param timeoutValue The <code>long</code> time-
+	 * out value used to terminate this on-demand
+	 * executor after task execution completion without
+	 * new task assignment.
+	 * @param timeoutUnit The <code>TimeUnit</code> the
+	 * timeout value is in.
+	 */
+	ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group,
+			final long timeoutValue, final TimeUnit timeoutUnit) {
+		this(name, handler, group, true, timeoutValue, timeoutUnit);
+	}
 
 	/**
 	 * Constructor of <code>ScaleExecutor</code>.
@@ -81,7 +123,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	 * @param timeoutUnit The <code>TimeUnit</code> the
 	 * timeout value is in.
 	 */
-	ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group, final boolean ondemand,
+	private ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group, final boolean ondemand,
 			final long timeoutValue, final TimeUnit timeoutUnit) {
 		super(name, handler);
 		this.group = group;
@@ -123,6 +165,18 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 	}
 
 	@Override
+	public final void terminate() {
+		super.terminate();
+		// Wake up waiting.
+		this.lock.lock();
+		try {
+			this.wait.signalAll();
+		} finally {
+			this.lock.unlock();
+		}
+	}
+
+	@Override
 	public final IEventTaskHandle assign(final IEventTask task) {
 		// Check for termination early to avoid object construction.
 		if (this.terminated) return null;
@@ -157,7 +211,7 @@ class ScaleExecutor extends Executor implements IScaleExecutor {
 			return executable;
 		}
 	}
-
+	
 	@Override
 	public final boolean isOndemand() {
 		return this.ondemand;

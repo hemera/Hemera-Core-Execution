@@ -116,12 +116,12 @@ abstract class Executor implements IExecutor {
 	}
 
 	@Override
-	public void terminate() throws Exception {
+	public void terminate() {
 		this.terminated = true;
 	}
 	
 	@Override
-	public void forceTerminate() throws Exception {
+	public void forceTerminate() {
 		this.terminate();
 		this.thread.interrupt();
 	}
