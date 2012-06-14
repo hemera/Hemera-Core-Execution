@@ -110,12 +110,12 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	}
 
 	@Override
-	protected IEventTaskHandle doSubmit(final IEventTask task) throws Exception {
+	protected IEventTaskHandle doSubmit(final IEventTask task) {
 		return this.nextAssistExecutor().assign(task);
 	}
 
 	@Override
-	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception {
+	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) {
 		return this.nextAssistExecutor().assign(task);
 	}
 	

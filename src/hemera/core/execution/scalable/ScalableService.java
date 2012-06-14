@@ -183,12 +183,12 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	}
 	
 	@Override
-	protected IEventTaskHandle doSubmit(final IEventTask task) throws Exception {
+	protected IEventTaskHandle doSubmit(final IEventTask task) {
 		return this.nextScaleExecutor().assign(task);
 	}
 	
 	@Override
-	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception {
+	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) {
 		return this.nextScaleExecutor().assign(task);
 	}
 	
@@ -209,10 +209,8 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	 * returned.
 	 * @return The <code>IScaleExecutor</code> for
 	 * task assignment.
-	 * @throws InterruptedException if waiting for an
-	 * existing executor to become available failed.
 	 */
-	private IScaleExecutor nextScaleExecutor() throws InterruptedException {
+	private IScaleExecutor nextScaleExecutor() {
 		// If there is an available executor then it is returned immediately.
 		final IScaleExecutor existing = this.availables.pollFirst();
 		if (existing != null) return existing;
@@ -222,7 +220,14 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		if (newexecutor != null) return newexecutor;
 		// Maximum amount has been reached, wait until an
 		// existing executor becomes available.
-		else return this.availables.takeFirst();
+		else {
+			try {
+				return this.availables.takeFirst();
+			} catch (final InterruptedException e) {
+				this.handler.handle(e);
+				return this.nextScaleExecutor();
+			}
+		}
 	}
 	
 	/**

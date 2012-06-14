@@ -144,10 +144,8 @@ public interface IExecutionService {
 	 * @param task The <code>IEventTask</code> to be
 	 * submitted.
 	 * @return The <code>IEventTaskHandle</code> instance.
-	 * @throws Exception If any process failed during
-	 * the submission.
 	 */
-	public IEventTaskHandle submit(final IEventTask task) throws Exception;
+	public IEventTaskHandle submit(final IEventTask task);
 
 	/**
 	 * Submit the given result task for execution.
@@ -175,10 +173,8 @@ public interface IExecutionService {
 	 * @param task The <code>IResultTask</code> to be
 	 * submitted.
 	 * @return The <code>IResultTaskHandle</code> instance.
-	 * @throws Exception If any process failed during
-	 * the submission.
 	 */
-	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) throws Exception;
+	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task);
 	
 	/**
 	 * Retrieve the current number of executors in the

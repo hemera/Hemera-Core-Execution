@@ -128,7 +128,7 @@ public abstract class ExecutionService implements IExecutionService {
 	protected abstract void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException;
 
 	@Override
-	public IEventTaskHandle submit(final IEventTask task) throws Exception {
+	public IEventTaskHandle submit(final IEventTask task) {
 		this.exceptionCheck(task);
 		return this.doSubmit(task);
 	}
@@ -139,13 +139,11 @@ public abstract class ExecutionService implements IExecutionService {
 	 * @param task The <code>IEventTask</code> to be
 	 * submitted.
 	 * @return The <code>IEventTaskHandle</code> instance.
-	 * @throws Exception If any process failed during
-	 * the submission.
 	 */
-	protected abstract IEventTaskHandle doSubmit(final IEventTask task) throws Exception;
+	protected abstract IEventTaskHandle doSubmit(final IEventTask task);
 
 	@Override
-	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) throws Exception {
+	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) {
 		this.exceptionCheck(task);
 		return this.doSubmit(task);
 	}
@@ -157,10 +155,8 @@ public abstract class ExecutionService implements IExecutionService {
 	 * @param task The <code>IResultTask</code> to be
 	 * submitted.
 	 * @return The <code>IResultTaskHandle</code> instance.
-	 * @throws Exception If any process failed during
-	 * the submission.
 	 */
-	protected abstract <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) throws Exception;
+	protected abstract <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task);
 	
 	/**
 	 * Check all the exception causing status.
