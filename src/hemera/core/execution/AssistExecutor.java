@@ -8,8 +8,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
-import hemera.core.execution.interfaces.assist.IAssistExecutor;
-import hemera.core.execution.interfaces.assist.IAssistedService;
+import hemera.core.execution.interfaces.assisted.IAssistExecutor;
+import hemera.core.execution.interfaces.assisted.IAssistedService;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;

@@ -1,4 +1,4 @@
-package hemera.core.execution.interfaces.assist;
+package hemera.core.execution.interfaces.assisted;
 
 import hemera.core.execution.interfaces.IExecutionService;
 
