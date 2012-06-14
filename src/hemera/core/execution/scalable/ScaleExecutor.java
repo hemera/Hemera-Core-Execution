@@ -143,7 +143,8 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	protected final void doRun() throws Exception {
 		// Execute local task and set it to null to allow new assignments.
 		final Executable executable = this.task.getAndSet(null);
-		executable.execute();
+		// Initial activation cycle will not have a task yet.
+		if (executable != null) executable.execute();
 		// Recycle for more tasks.
 		this.group.recycle(this);
 		// Go into waiting mode.

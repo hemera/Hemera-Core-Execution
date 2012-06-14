@@ -124,14 +124,10 @@ public class ScalableService extends ExecutionService implements IScalableServic
 				builder.append(" with minimum count ").append(this.minCount).append(".");
 				throw new IllegalArgumentException(builder.toString());
 			} else {
-				succeeded = this.availables.offerLast(executor);
-				if (!succeeded) {
-					final StringBuilder builder = new StringBuilder();
-					builder.append("Adding initial scale executor to available pool failed on count ").append(i);
-					builder.append(" with maximum count ").append(this.maxCount);
-					builder.append(" with minimum count ").append(this.minCount).append(".");
-					throw new IllegalArgumentException(builder.toString());
-				}
+				// Activate executor. There is no need to push the
+				// executor to the available pool, since it will
+				// recycle itself on the initial cycle without any
+				// task assigned.
 				executor.start();
 			}
 		}

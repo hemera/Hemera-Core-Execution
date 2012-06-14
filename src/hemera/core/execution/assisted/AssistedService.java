@@ -62,12 +62,17 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 
 	@Override
 	protected void doActivate() {
-		// Create and activate executors.
+		// Create executors first before activation, since once an
+		// executor is activated, it'll start assisting but not all
+		// executors are created yet.
 		for (int i = 0; i < this.executors.length; i++) {
 			final String name = "AssistExecutor-" + i;
 			final AssistExecutor executor = new AssistExecutor(name, this.handler, this, this.idletime, this.idleunit);
 			this.executors[i] = executor;
-			executor.start();
+		}
+		// Activate executors.
+		for (int i = 0; i < this.executors.length; i++) {
+			this.executors[i].start();
 		}
 	}
 
