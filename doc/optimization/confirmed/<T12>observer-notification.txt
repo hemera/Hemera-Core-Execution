@@ -1,5 +1,0 @@
-1. Frame observer notification process.
-	A) Make the second last step of passing frame barrier
-	   be the notification process. Use thread safe
-	   observer-store data structure to allow concurrent
-	   notification.

@@ -1,2 +1,0 @@
-1. MessageBus NotificationTask reuse instead of creating new ones all the time.
-	A) GC-time vs. Deque time & Memory consumption.
