@@ -194,16 +194,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		if (this.hasRequestedTermination()) return null;
 		// Try to assign.
 		final EventExecutable executable = new EventExecutable(task);
-		final boolean succeeded = this.task.compareAndSet(null, executable);
-		// There is a task assigned already.
-		if (!succeeded) return null;
-		// Succeeded.
-		else {
-			// Wake up waiting.
-			this.wakeup();
-			// Return executable as handle.
-			return executable;
-		}
+		return this.doAssign(executable);
 	}
 
 	@Override
@@ -212,6 +203,18 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		if (this.hasRequestedTermination()) return null;
 		// Try to assign.
 		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
+		return this.doAssign(executable);
+	}
+	
+	/**
+	 * Perform the assignment of given executable.
+	 * @param <E> The <code>Executable</code> type.
+	 * @param executable The <code>E</code> to be
+	 * assigned.
+	 * @return The given <code>E</code> executable
+	 * if succeeded. <code>null</code> otherwise.
+	 */
+	private final <E extends Executable> E doAssign(final E executable) {
 		final boolean succeeded = this.task.compareAndSet(null, executable);
 		// There is a task assigned already.
 		if (!succeeded) return null;
