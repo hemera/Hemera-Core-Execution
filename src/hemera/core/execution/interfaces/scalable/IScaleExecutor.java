@@ -52,11 +52,11 @@ public interface IScaleExecutor extends IExecutor {
 	 * @param task The <code>IEventTask</code> to be
 	 * executed.
 	 * @return The <code>IEventTaskHandle</code> for
-	 * the assigned event task. <code>null</code> if
-	 * the executor has been terminated or there is
-	 * already a task assigned to this executor.
+	 * the assigned event task.
+	 * @throws IllegalStateException If there is a
+	 * task assigned to this executor already.
 	 */
-	public IEventTaskHandle assign(final IEventTask task);
+	public IEventTaskHandle assign(final IEventTask task) throws IllegalStateException;
 	
 	/**
 	 * Assign the given result task to this executor
@@ -70,11 +70,11 @@ public interface IScaleExecutor extends IExecutor {
 	 * @param task The <code>IResultTask</code> to be
 	 * executed.
 	 * @return The <code>IResultTaskHandle</code> for
-	 * the assigned result task. <code>null</code> if
-	 * the executor has been terminated or there is
-	 * already a task assigned to this executor.
+	 * the assigned result task.
+	 * @throws IllegalStateException If there is a
+	 * task assigned to this executor already.
 	 */
-	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task);
+	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task) throws IllegalStateException;
 
 	/**
 	 * Check if this instance of executor is an on-

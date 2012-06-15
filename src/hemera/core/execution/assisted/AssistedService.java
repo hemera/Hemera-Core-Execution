@@ -80,7 +80,7 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	protected void doShutdown() {
 		for (int i = 0; i < this.executors.length; i++) {
 			final IAssistExecutor executor = this.executors[i];
-			executor.terminate();
+			executor.requestTerminate();
 		}
 	}
 
@@ -88,7 +88,7 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	protected void doShutdownAndWait() throws InterruptedException {
 		for (int i = 0; i < this.executors.length; i++) {
 			final IAssistExecutor executor = this.executors[i];
-			executor.terminate();
+			executor.requestTerminate();
 			// Wait for executor thread to terminate.
 			while (!executor.hasTerminated()) {
 				TimeUnit.MILLISECONDS.sleep(5);

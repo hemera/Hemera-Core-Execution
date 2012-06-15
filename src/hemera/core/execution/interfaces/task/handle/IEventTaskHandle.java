@@ -8,17 +8,20 @@ import java.util.concurrent.TimeUnit;
  * is successfully submitted. It provides additional
  * event task specific handling functionalities.
  * <p>
- * <code>IEventTaskHandle</code> inherits cancellation
- * support from the <code>ITaskHandle</code> interface.
- * More specifically, an event task can be canceled if
- * its logic execution has not yet been started. Once
- * the execution is started, the cancellation process
- * will take no effect.
+ * <code>IEventTaskHandle</code> provides the support
+ * to cancel the corresponding event task if its logic
+ * execution has not yet been started. Once the task
+ * execution is started, the cancellation process will
+ * take no effect.
+ * <p>
+ * <code>IEventTaskHandle</code> also allows an other
+ * thread to wait on task execution completion, either
+ * indefinitely or with a specified time period.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public interface IEventTaskHandle extends ITaskHandle {
+public interface IEventTaskHandle {
 	
 	/**
 	 * Wait until the task execution is completed.
@@ -68,4 +71,12 @@ public interface IEventTaskHandle extends ITaskHandle {
 	 * is interrupted.
 	 */
 	public boolean await(final long value, final TimeUnit unit) throws InterruptedException;
+
+	/**
+	 * Try to cancel the task execution.
+	 * @return The <code>true</code> if cancellation
+	 * succeeded. <code>false</code> if the execution
+	 * has already began or completed.
+	 */
+	public boolean cancel();
 }

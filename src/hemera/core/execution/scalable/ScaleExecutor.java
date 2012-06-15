@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import hemera.core.execution.Executor;
 import hemera.core.execution.executable.EventExecutable;
-import hemera.core.execution.executable.Executable;
 import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.scalable.IScalableService;
@@ -57,7 +56,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	private final Condition wait;
 	/**
 	 * The <code>AtomicReference</code> of assigned
-	 * <code>Executable</code>.
+	 * <code>EventExecutable</code>.
 	 * <p>
 	 * Atomic check and set operation is needed to
 	 * ensure that only a single instance can be
@@ -65,8 +64,8 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	 * write and read operations to be performed in
 	 * different threads.
 	 */
-	private final AtomicReference<Executable> task;
-	
+	private final AtomicReference<EventExecutable> task;
+
 	/**
 	 * Constructor of <code>ScaleExecutor</code>.
 	 * <p>
@@ -83,7 +82,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	public ScaleExecutor(final String name, final IExceptionHandler handler, final IScalableService group) {
 		this(name, handler, group, false, -1, null);
 	}
-	
+
 	/**
 	 * Constructor of <code>ScaleExecutor</code>.
 	 * <p>
@@ -136,18 +135,26 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		this.timeoutUnit = timeoutUnit;
 		this.lock = new ReentrantLock();
 		this.wait = this.lock.newCondition();
-		this.task = new AtomicReference<Executable>(null);
+		this.task = new AtomicReference<EventExecutable>(null);
 	}
 
 	@Override
 	protected final void doRun() throws Exception {
 		// Execute local task and set it to null to allow new assignments.
-		final Executable executable = this.task.getAndSet(null);
+		final EventExecutable executable = this.task.getAndSet(null);
 		// Initial activation cycle will not have a task yet.
-		if (executable != null) executable.execute();
-		// Recycle for more tasks.
-		this.group.recycle(this);
+		if (executable != null) {
+			executable.execute();
+			// Recycle for more tasks only after executing one task.
+			// This prevents the case where a new on-demand executor is
+			// created and will be assigned with the task that triggered
+			// the creation, but the initial run cycle can put the
+			// executor back into the pool causing it to be assigned
+			// with another task.
+			this.group.recycle(this);
+		}
 		// Go into waiting mode.
+		boolean signaled = true;
 		this.lock.lock();
 		try {
 			// Check for termination.
@@ -156,9 +163,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 			else if (this.task.get() != null) return;
 			// If this executor is on-demand, wait on timeout.
 			else if (this.ondemand) {
-				final boolean signaled = this.wait.await(this.timeoutValue, this.timeoutUnit);
-				// Terminate if timed-out.
-				if (!signaled) this.terminate();
+				signaled = this.wait.await(this.timeoutValue, this.timeoutUnit);
 			}
 			// Otherwise just wait for next task.
 			else {
@@ -167,8 +172,15 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		} finally {
 			this.lock.unlock();
 		}
+		// Terminate and remove from group if timed-out.
+		if (this.ondemand && !signaled) {
+			final boolean suceeded = this.group.remove(this);
+			// Only request termination if the executor has successfully been removed.
+			// The removal might fail if the executor has been polled for a new task.
+			if (suceeded) this.requestTerminate();
+		}
 	}
-	
+
 	/**
 	 * Signal waiting to wake up.
 	 */
@@ -182,42 +194,41 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 	}
 
 	@Override
-	public final void terminate() {
-		super.terminate();
+	public final void requestTerminate() {
+		super.requestTerminate();
 		// Wake up waiting.
 		this.wakeup();
 	}
 
 	@Override
-	public final IEventTaskHandle assign(final IEventTask task) {
-		// Check for termination early to avoid object construction.
-		if (this.hasRequestedTermination()) return null;
-		// Try to assign.
+	protected IEventTaskHandle doAssign(final IEventTask task) {
 		final EventExecutable executable = new EventExecutable(task);
 		return this.doAssign(executable);
 	}
 
 	@Override
-	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
-		// Check for termination early to avoid object construction.
-		if (this.hasRequestedTermination()) return null;
-		// Try to assign.
+	protected <V> IResultTaskHandle<V> doAssign(final IResultTask<V> task) {
 		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
 		return this.doAssign(executable);
 	}
-	
+
 	/**
 	 * Perform the assignment of given executable.
-	 * @param <E> The <code>Executable</code> type.
+	 * @param <E> The <code>EventExecutable</code>
+	 * type.
 	 * @param executable The <code>E</code> to be
 	 * assigned.
 	 * @return The given <code>E</code> executable
-	 * if succeeded. <code>null</code> otherwise.
+	 * if succeeded.
+	 * @throws IllegalStateException If there is a
+	 * task already assigned.
 	 */
-	private final <E extends Executable> E doAssign(final E executable) {
+	private final <E extends EventExecutable> E doAssign(final E executable) throws IllegalStateException {
 		final boolean succeeded = this.task.compareAndSet(null, executable);
 		// There is a task assigned already.
-		if (!succeeded) return null;
+		if (!succeeded) {
+			throw new IllegalStateException("There is a task already assigned to executor: " + this.getName());
+		}
 		// Succeeded.
 		else {
 			// Wake up waiting.
@@ -226,7 +237,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 			return executable;
 		}
 	}
-	
+
 	@Override
 	public final boolean isOndemand() {
 		return this.ondemand;

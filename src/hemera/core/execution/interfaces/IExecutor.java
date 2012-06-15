@@ -40,17 +40,6 @@ public interface IExecutor extends Runnable {
 	public void start();
 	
 	/**
-	 * Gracefully terminate this executor and cancel
-	 * all assigned tasks.
-	 * <p>
-	 * The executor may not terminate immediately if
-	 * it is already in the process of execution. It
-	 * is guaranteed that the executor will terminate
-	 * after it completes the started execution.
-	 */
-	public void terminate();
-	
-	/**
 	 * Forcefully terminate the executor.
 	 * <p>
 	 * This method guarantees to terminate the executor
@@ -60,6 +49,17 @@ public interface IExecutor extends Runnable {
 	public void forceTerminate();
 	
 	/**
+	 * Gracefully terminate this executor and cancel
+	 * all assigned tasks.
+	 * <p>
+	 * The executor may not terminate immediately if
+	 * it is already in the process of execution. It
+	 * is guaranteed that the executor will terminate
+	 * after it completes the started execution.
+	 */
+	public void requestTerminate();
+
+	/**
 	 * Assign the given event task to this executor.
 	 * <p>
 	 * This method guarantees its thread safety by
@@ -68,10 +68,11 @@ public interface IExecutor extends Runnable {
 	 * @param task The <code>IEventTask</code> to be
 	 * executed.
 	 * @return The <code>IEventTaskHandle</code> for
-	 * the assigned event task. <code>null</code> if
-	 * the executor has been terminated.
+	 * the assigned event task. 
+	 * @throws IllegalStateException If the executor
+	 * has been terminated.
 	 */
-	public IEventTaskHandle assign(final IEventTask task);
+	public IEventTaskHandle assign(final IEventTask task) throws IllegalStateException;
 	
 	/**
 	 * Assign the given result task to this executor.
@@ -83,10 +84,17 @@ public interface IExecutor extends Runnable {
 	 * @param task The <code>IResultTask</code> to be
 	 * executed.
 	 * @return The <code>IResultTaskHandle</code> for
-	 * the assigned result task. <code>null</code> if
-	 * the executor has been terminated.
+	 * the assigned result task.
+	 * @throws IllegalStateException If the executor
+	 * has been terminated.
 	 */
-	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task);
+	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task) throws IllegalStateException;
+	
+	/**
+	 * Retrieve the name of this executor.
+	 * @return The <code>String</code> name.
+	 */
+	public String getName();
 	
 	/**
 	 * Check if the executor has been started.

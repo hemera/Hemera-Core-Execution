@@ -53,6 +53,22 @@ public interface IScalableService extends IExecutionService {
 	public void recycle(final IScaleExecutor executor);
 	
 	/**
+	 * Remove the given executor from the executor pool.
+	 * <p>
+	 * This method should only be used internally to
+	 * remove a timed-out on-demand executor.
+	 * @param executor The <code>IScaleExecutor</code>
+	 * to remove.
+	 * @return The <code>true</code> if given executor
+	 * is an on-demand executor and has been removed.
+	 * <code>false</code> if the executor has been polled
+	 * for a new task assignment already, or the executor
+	 * does not belong to the service or it is not an
+	 * on-demand instance.
+	 */
+	public boolean remove(final IScaleExecutor executor);
+	
+	/**
 	 * Retrieve the number of available executors to
 	 * handle new tasks in the service.
 	 * @return The <code>int</code> number of available

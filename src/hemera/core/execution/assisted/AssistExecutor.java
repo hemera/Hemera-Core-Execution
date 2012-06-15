@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import hemera.core.execution.Executor;
 import hemera.core.execution.executable.EventExecutable;
-import hemera.core.execution.executable.Executable;
 import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
@@ -35,7 +34,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	private final IAssistedService group;
 	/**
 	 * The <code>Deque</code> of local task buffer
-	 * of <code>Executable</code>.
+	 * of <code>EventExecutable</code>.
 	 * <p>
 	 * This data structure needs to support a high
 	 * level of concurrency to allow multiple threads
@@ -44,7 +43,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	 * operates on the head end. Assignments are put
 	 * at the head.
 	 */
-	private final Deque<Executable> buffer;
+	private final Deque<EventExecutable> buffer;
 	/**
 	 * The <code>long</code> executor idle time value.
 	 */
@@ -82,7 +81,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		super(name, handler);
 		this.group = group;
 		// TODO Replace with Java 7 ConcurrentLinkedDeque.
-		this.buffer = new LinkedBlockingDeque<Executable>();
+		this.buffer = new LinkedBlockingDeque<EventExecutable>();
 		this.lock = new ReentrantLock();
 		this.idle = this.lock.newCondition();
 		this.idletime = idletime;
@@ -91,7 +90,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 
 	@Override
 	public boolean assist() {
-		final Executable executable = this.buffer.pollLast();
+		final EventExecutable executable = this.buffer.pollLast();
 		if (executable == null) return false;
 		try {
 			executable.execute();
@@ -106,7 +105,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// Execute local task buffer until empty.
 		// Poll from head to lower contention since
 		// other assisting executors poll from tail.
-		Executable executable = this.buffer.pollFirst();
+		EventExecutable executable = this.buffer.pollFirst();
 		while (executable != null) {
 			executable.execute();
 			executable = this.buffer.pollFirst();
@@ -144,27 +143,21 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	}
 
 	@Override
-	public final void terminate() {
-		super.terminate();
+	public final void requestTerminate() {
+		super.requestTerminate();
 		// Wake up idling.
 		this.wakeup();
 	}
 	
 	@Override
-	public final IEventTaskHandle assign(final IEventTask task) {
-		// Check for termination early to avoid object construction.
-		if (this.hasRequestedTermination()) return null;
-		// Perform assignment.
+	protected IEventTaskHandle doAssign(final IEventTask task) {
 		final EventExecutable executable = new EventExecutable(task);
 		this.doAssign(executable);
 		return executable;
 	}
 
 	@Override
-	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) {
-		// Check for termination early to avoid object construction.
-		if (this.hasRequestedTermination()) return null;
-		// Perform assignment.
+	protected <V> IResultTaskHandle<V> doAssign(final IResultTask<V> task) {
 		final ResultExecutable<V> executable = new ResultExecutable<V>(task);
 		this.doAssign(executable);
 		return executable;
@@ -172,11 +165,12 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	
 	/**
 	 * Perform the assignment of given executable.
-	 * @param <E> The <code>Executable</code> type.
+	 * @param <E> The <code>EventExecutable</code>
+	 * type.
 	 * @param executable The <code>E</code> to be
 	 * assigned.
 	 */
-	private final <E extends Executable> void doAssign(final E executable) {
+	private final <E extends EventExecutable> void doAssign(final E executable) {
 		// Insert to the head since only local thread
 		// is operating on the head where other assist
 		// executors operate on the tail, thus lowering

@@ -4,6 +4,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>Executor</code> defines the abstraction of an
@@ -116,16 +120,65 @@ public abstract class Executor implements IExecutor {
 	}
 
 	@Override
-	public void terminate() {
-		this.requestedTermination = true;
+	public void forceTerminate() {
+		this.requestTerminate();
+		this.thread.interrupt();
 	}
 	
 	@Override
-	public void forceTerminate() {
-		this.terminate();
-		this.thread.interrupt();
+	public void requestTerminate() {
+		this.requestedTermination = true;
 	}
 
+	/**
+	 * Undo the termination request.
+	 */
+	protected void undoTermination() {
+		this.requestedTermination = false;
+	}
+	
+	@Override
+	public final IEventTaskHandle assign(final IEventTask task) throws IllegalStateException {
+		if (this.hasRequestedTermination()) {
+			throw new IllegalStateException("Executor has been requested to terminate: " + this.getName());
+		}
+		return this.doAssign(task);
+	}
+	
+	/**
+	 * Perform the assignment logic, all status has
+	 * been checked.
+	 * @param task The <code>IEventTask</code> to be
+	 * executed.
+	 * @return The <code>IEventTaskHandle</code> for
+	 * the assigned event task. 
+	 */
+	protected abstract IEventTaskHandle doAssign(final IEventTask task);
+
+	@Override
+	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) throws IllegalStateException {
+		if (this.hasRequestedTermination()) {
+			throw new IllegalStateException("Cannot assign task. Executor has been requested to terminate: " + this.getName());
+		}
+		return this.doAssign(task);
+	}
+	
+	/**
+	 * Perform the assignment logic, all status has
+	 * been checked.
+	 * @param V The result task result type.
+	 * @param task The <code>IResultTask</code> to be
+	 * executed.
+	 * @return The <code>IResultTaskHandle</code> for
+	 * the assigned result task. 
+	 */
+	protected abstract <V> IResultTaskHandle<V> doAssign(final IResultTask<V> task);
+
+	@Override
+	public String getName() {
+		return this.thread.getName();
+	}
+	
 	@Override
 	public boolean hasStarted() {
 		return this.started.get();

@@ -124,11 +124,15 @@ public class ScalableService extends ExecutionService implements IScalableServic
 				builder.append(" with minimum count ").append(this.minCount).append(".");
 				throw new IllegalArgumentException(builder.toString());
 			} else {
-				// Activate executor. There is no need to push the
-				// executor to the available pool, since it will
-				// recycle itself on the initial cycle without any
-				// task assigned.
 				executor.start();
+				succeeded = this.availables.offerLast(executor);
+				if (!succeeded) {
+					final StringBuilder builder = new StringBuilder();
+					builder.append("Offering initial scale executor failed on count ").append(i);
+					builder.append(" with maximum count ").append(this.maxCount);
+					builder.append(" with minimum count ").append(this.minCount).append(".");
+					throw new IllegalArgumentException(builder.toString());
+				}
 			}
 		}
 	}
@@ -138,7 +142,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		// Gracefully terminate and remove all active executors.
 		while (!this.executors.isEmpty()) {
 			final IExecutor executor = this.executors.poll();
-			executor.terminate();
+			executor.requestTerminate();
 		}
 	}
 
@@ -147,7 +151,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		// Remove and wait for all executor threads to terminate.
 		while (!this.executors.isEmpty()) {
 			final IExecutor executor = this.executors.poll();
-			executor.terminate();
+			executor.requestTerminate();
 			while (!executor.hasTerminated()) {
 				TimeUnit.MILLISECONDS.sleep(5);
 			}
@@ -167,7 +171,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	protected void doForceShutdown(final long time, final TimeUnit unit) throws InterruptedException {
 		// Gracefully terminate all active executors.
 		for (final IExecutor executor : this.executors) {
-			executor.terminate();
+			executor.requestTerminate();
 		}
 		// Wait for expiration.
 		unit.sleep(time);
@@ -177,17 +181,17 @@ public class ScalableService extends ExecutionService implements IScalableServic
 			executor.forceTerminate();
 		}
 	}
-	
+
 	@Override
 	protected IEventTaskHandle doSubmit(final IEventTask task) {
 		return this.nextScaleExecutor().assign(task);
 	}
-	
+
 	@Override
 	protected <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task) {
 		return this.nextScaleExecutor().assign(task);
 	}
-	
+
 	/**
 	 * Retrieve the next available scale executor.
 	 * <p>
@@ -225,7 +229,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 			}
 		}
 	}
-	
+
 	/**
 	 * Try to create and insert a new on-demand executor
 	 * if the maximum amount has not been reached.
@@ -238,31 +242,49 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		final ScaleExecutor executor = new ScaleExecutor(name, this.handler, this, this.timeoutValue, this.timeoutUnit);
 		// Try to insert.
 		final boolean succeeded = this.executors.offer(executor);
-		if (!succeeded) return null;
-		else {
+		if (!succeeded) {
+			this.logger.warning("Execution service maximum capacity reached. Cannot create more on-demand executors.");
+			return null;
+		} else {
 			executor.start();
 			return executor;
 		}
 	}
-	
+
 	@Override
 	public void recycle(final IScaleExecutor executor) {
 		// Try to insert into the available pool.
 		final boolean succeeded = this.availables.offerLast(executor);
 		// If failed, then this executor is an excess one, and should not exist.
 		if (!succeeded) {
-			this.logger.warning("Excess executor detected and terminated: " + executor.toString());
-			executor.terminate();
+			this.logger.warning("Excess executor detected and terminated: " + executor.getName());
+			executor.requestTerminate();
 			this.availables.remove(executor);
 			this.executors.remove(executor);
 		}
 	}
-	
+
+	@Override
+	public boolean remove(final IScaleExecutor executor) {
+		// Check on-demand.
+		if (!executor.isOndemand()) return false;
+		// Try to remove from available first to see if it
+		// has been polled for new task assignment already.
+		final boolean removed = this.availables.remove(executor);
+		// Remove from all executor pool as well.
+		if (removed) {
+			this.executors.remove(executor);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	@Override
 	public int getAvailableCount() {
 		return this.availables.size();
 	}
-	
+
 	@Override
 	public int getCurrentExecutorCount() {
 		return this.executors.size();

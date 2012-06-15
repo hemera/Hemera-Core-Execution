@@ -41,14 +41,9 @@ public class ResultExecutable<R> extends EventExecutable implements IResultTaskH
 	}
 
 	@Override
-	protected void doExecute() throws Exception {
-		try {
-			final R result = this.task.execute();
-			this.result.compareAndSet(null, result);
-		} finally {
-			// Guarantees to wake up waiting threads.
-			this.signalAll();
-		}
+	protected void executeTask() throws Exception {
+		final R result = this.task.execute();
+		this.result.compareAndSet(null, result);
 	}
 	
 	@Override

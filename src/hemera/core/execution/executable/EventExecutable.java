@@ -9,36 +9,60 @@ import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 
 /**
- * <code>EventExecutable</code> defines implementation
- * of an executable unit that directly corresponds to
- * an event task unit. It implements the interface of
- * <code>IEventTaskHandle</code> to provide the event
- * task type specific handling.
+ * <code>EventExecutable</code> defines a composite
+ * container unit of an event task, as well as being
+ * the task handle for the contained task.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public class EventExecutable extends Executable implements IEventTaskHandle {
+public class EventExecutable implements IEventTaskHandle {
 	/**
 	 * The <code>IEventTask</code> to be executed.
 	 */
 	private final IEventTask task;
 	/**
-	 * The execution waiting <code>Lock</code>.
+	 * The execution <code>Lock</code>.
+	 * <p>
+	 * The locking sequence is first lock execution
+	 * lock, then lock completion lock.
 	 */
-	private final Lock lock;
+	private final Lock executionLock;
 	/**
-	 * The execution waiting<code>Condition</code>.
+	 * The completion <code>Lock</code>.
+	 * <p>
+	 * The locking sequence is first lock execution
+	 * lock, then lock completion lock.
 	 */
-	private final Condition condition;
+	private final Lock completionLock;
+	/**
+	 * The completion waiting <code>Condition</code>.
+	 */
+	private final Condition completionCondition;
+	/**
+	 * The <code>boolean</code> indicating if the
+	 * task execution has been canceled.
+	 * <p>
+	 * This value is guarded by the execution lock.
+	 */
+	private boolean canceled;
+	/**
+	 * The <code>boolean</code> indicating if the
+	 * task execution has been completed.
+	 * <p>
+	 * This value is guarded by both the execution lock
+	 * and the completion lock.
+	 */
+	private boolean completed;
 
 	/**
 	 * Constructor of <code>EventExecutable</code>.
 	 */
 	protected EventExecutable() {
 		this.task = null;
-		this.lock = new ReentrantLock();
-		this.condition = this.lock.newCondition();
+		this.executionLock = new ReentrantLock();
+		this.completionLock = new ReentrantLock();
+		this.completionCondition = this.completionLock.newCondition();
 	}
 
 	/**
@@ -48,30 +72,44 @@ public class EventExecutable extends Executable implements IEventTaskHandle {
 	 */
 	public EventExecutable(final IEventTask task) {
 		this.task = task;
-		this.lock = new ReentrantLock();
-		this.condition = this.lock.newCondition();
-	}
-
-	@Override
-	protected void doExecute() throws Exception {
-		try {
-			this.task.execute();
-		} finally {
-			// Guarantees to wake up waiting threads.
-			this.signalAll();
-		}
+		this.executionLock = new ReentrantLock();
+		this.completionLock = new ReentrantLock();
+		this.completionCondition = this.completionLock.newCondition();
 	}
 
 	/**
-	 * Signal all waiting threads to wake up.
+	 * Execute the contained task.
+	 * @throws Exception If any processing failed.
 	 */
-	protected void signalAll() {
-		this.lock.lock();
+	public final void execute() throws Exception {
+		// Acquire execution lock.
+		this.executionLock.lock();
 		try {
-			this.condition.signalAll();
+			// Check cancelled status while holding the execution lock,
+			// since cancellation can only set this status after acquiring
+			// this lock.
+			if (this.canceled) return;
+			// Execute task.
+			this.executeTask();
+			// Signal completion.
+			this.completionLock.lock();
+			this.completed = true;
+			try {
+				this.completionCondition.signalAll();
+			} finally {
+				this.completionLock.unlock();
+			}
 		} finally {
-			this.lock.unlock();
+			this.executionLock.unlock();
 		}
+	}
+	
+	/**
+	 * Execute the contained task.
+	 * @throws Exception If task execution failed.
+	 */
+	protected void executeTask() throws Exception {
+		this.task.execute();
 	}
 
 	@Override
@@ -81,41 +119,58 @@ public class EventExecutable extends Executable implements IEventTaskHandle {
 
 	@Override
 	public boolean await(final long value, final TimeUnit unit) throws InterruptedException {
-		// Check finished/canceled to early return.
-		if (this.hasFinished()) return true;
-		else if (this.isCanceled()) return false;
-		// Wait.
-		boolean signaled = false;
-		this.lock.lock();
+		// Wait to acquire the execution lock. This will only go through
+		// if the execution has not yet started or has completed.
+		this.executionLock.lock();
 		try {
-			// Check flags in case signal was sent before this lock is obtained.
-			if (this.hasFinished()) return true;
-			else if (this.isCanceled()) return false;
-			// Unconditional wait.
-			if (value < 0 || unit == null) {
-				this.condition.await();
-				signaled = true;
+			// This will catch the case where the execution has completed.
+			if (this.completed) return true;
+			// Perform wait.
+			this.completionLock.lock();
+			try {
+				if (value < 0 || unit == null) {
+					this.completionCondition.await();
+				} else {
+					this.completionCondition.await(value, unit);
+				}
+			} finally {
+				this.completionLock.unlock();
 			}
-			// Timed wait.
-			else {
-				signaled = this.condition.await(value, unit);
-			}
+			// When reaches here, since this holds the execution lock, either
+			// the task has been completed or it has not yet been started, or
+			// it has been cancelled.
+			if (this.completed) return true;
+			else return false;
 		} finally {
-			this.lock.unlock();
+			this.executionLock.unlock();
 		}
-		// If signaled, condition return result.
-		if (signaled) {
-			if (this.isCanceled()) return false;
-			else return true;
-			// Otherwise, return false.
-		} else return false;
 	}
 
 	@Override
 	public boolean cancel() {
-		final boolean canceled = super.cancel();
-		// Wake up waiting threads.
-		if (canceled) this.signalAll();
-		return canceled;
+		// Try to acquire execution lock to set the cancelled status.
+		// The acquiring will only succeed if the execution has not
+		// yet began or has completed.
+		final boolean succeeded = this.executionLock.tryLock();
+		// If cannot lock, then execution has began.
+		if (!succeeded) return false;
+		else {
+			try {
+				// Acquire completion lock to check for completion status.
+				this.completionLock.lock();
+				try {
+					if (this.completed) return false;
+					// Otherwise, we can cancel.
+					this.canceled = true;
+					// Signal completion waiting.
+					this.completionCondition.signalAll();
+					return true;
+				} finally {
+					this.completionLock.unlock();
+				}
+			} finally {
+				this.executionLock.unlock();
+			}
+		}
 	}
 }

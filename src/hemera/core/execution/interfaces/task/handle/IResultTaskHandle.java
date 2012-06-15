@@ -3,14 +3,14 @@ package hemera.core.execution.interfaces.task.handle;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>IResultTaskHandle</code> defines the interface
- * of a task handle that is returned after a result task
- * is successfully submitted. It provides additional
- * result task specific handling functionalities.
+ * <code>IResultTaskHandle</code> defines an extension
+ * to the <code>IEventTaskHandle</code> to provide the
+ * additional support related to a result task.
  * <p>
- * <code>IResultTaskHandle</code> inherits event task
- * handle as result tasks are event tasks in nature.
- * It provides the additional result handling methods.
+ * <code>IResultTaskHandle</code> allows a thread to
+ * wait for task execution completion, then retrieve
+ * the result produced by the task, in addition to the
+ * just waiting for task completion.
  * <p>
  * @param <R> The result task result return type.
  *

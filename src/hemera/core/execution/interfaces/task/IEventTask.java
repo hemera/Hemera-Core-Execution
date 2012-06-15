@@ -36,6 +36,7 @@ public interface IEventTask {
 	 * executor thread will invoke this method, however,
 	 * there is no guarantee as which thread performs the
 	 * invocation.
+	 * @throws Exception If any processing failed.
 	 */
-	public void execute();
+	public void execute() throws Exception;
 }

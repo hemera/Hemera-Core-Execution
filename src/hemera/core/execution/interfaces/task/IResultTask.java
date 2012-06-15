@@ -42,6 +42,7 @@ public interface IResultTask<R> {
 	 * there is no guarantee as which thread performs the
 	 * invocation.
 	 * @return The <code>R</code> execution result.
+	 * @throws Exception If any processing failed.
 	 */
-	public R execute();
+	public R execute() throws Exception;
 }

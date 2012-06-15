@@ -130,7 +130,9 @@ public abstract class ExecutionService implements IExecutionService {
 	@Override
 	public IEventTaskHandle submit(final IEventTask task) {
 		this.exceptionCheck(task);
-		return this.doSubmit(task);
+		final IEventTaskHandle handle = this.doSubmit(task);
+		if (handle == null) throw new RuntimeException("Service error: submission of task failed even though service is running.");
+		return handle;
 	}
 	
 	/**
@@ -138,14 +140,18 @@ public abstract class ExecutionService implements IExecutionService {
 	 * assignment.
 	 * @param task The <code>IEventTask</code> to be
 	 * submitted.
-	 * @return The <code>IEventTaskHandle</code> instance.
+	 * @return The <code>IEventTaskHandle</code> of
+	 * the given task. This method should never return
+	 * <code>null</code>.
 	 */
 	protected abstract IEventTaskHandle doSubmit(final IEventTask task);
 
 	@Override
 	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) {
 		this.exceptionCheck(task);
-		return this.doSubmit(task);
+		final IResultTaskHandle<V> handle = this.doSubmit(task);
+		if (handle == null) throw new RuntimeException("Service error: submission of task failed even though service is running.");
+		return handle;
 	}
 	
 	/**
@@ -154,7 +160,9 @@ public abstract class ExecutionService implements IExecutionService {
 	 * @param <V> The result task result return type.
 	 * @param task The <code>IResultTask</code> to be
 	 * submitted.
-	 * @return The <code>IResultTaskHandle</code> instance.
+	 * @return The <code>IResultTaskHandle</code> of
+	 * the given task. This method should never return
+	 * <code>null</code>.
 	 */
 	protected abstract <V> IResultTaskHandle<V> doSubmit(final IResultTask<V> task);
 	

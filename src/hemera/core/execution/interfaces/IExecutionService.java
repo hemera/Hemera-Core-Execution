@@ -143,7 +143,8 @@ public interface IExecutionService {
 	 * the invocation returns.
 	 * @param task The <code>IEventTask</code> to be
 	 * submitted.
-	 * @return The <code>IEventTaskHandle</code> instance.
+	 * @return The <code>IEventTaskHandle</code> of
+	 * the submitted task.
 	 */
 	public IEventTaskHandle submit(final IEventTask task);
 
@@ -172,7 +173,8 @@ public interface IExecutionService {
 	 * @param <V> The result task result return type.
 	 * @param task The <code>IResultTask</code> to be
 	 * submitted.
-	 * @return The <code>IResultTaskHandle</code> instance.
+	 * @return The <code>IResultTaskHandle</code> of
+	 * the submitted task.
 	 */
 	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task);
 	
