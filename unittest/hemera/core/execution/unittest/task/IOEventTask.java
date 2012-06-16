@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import hemera.core.execution.interfaces.task.IEventTask;
 
-public class EventTask implements IEventTask {
+public class IOEventTask implements IEventTask {
 
 	@Override
 	public void execute() throws Exception {
@@ -13,9 +13,9 @@ public class EventTask implements IEventTask {
 		while (true) {
 			final long current = System.currentTimeMillis();
 			final long elapsed = current - start;
-			if (elapsed >= 1000) break;
+			if (elapsed >= 500) break;
 		}
 		// Simulate IO.
-		TimeUnit.SECONDS.sleep(1);
+		TimeUnit.MILLISECONDS.sleep(1000);
 	}
 }

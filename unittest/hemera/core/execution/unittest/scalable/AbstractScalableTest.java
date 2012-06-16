@@ -21,7 +21,7 @@ public class AbstractScalableTest extends TestCase {
 	public AbstractScalableTest() {
 		CLogging.Directory.setValue("/Workspace/Hemera/LocalLog/");
 		this.min = 20;
-		this.max = 1000;
+		this.max = 500;
 		this.timeoutValue = 200;
 		this.timeoutUnit = TimeUnit.MILLISECONDS;
 	}

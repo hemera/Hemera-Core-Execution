@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
-import hemera.core.execution.unittest.task.EventTask;
-import hemera.core.execution.unittest.task.ResultTask;
+import hemera.core.execution.unittest.task.IOEventTask;
+import hemera.core.execution.unittest.task.IOResultTask;
 
 /**
  * This test first submits more tasks than the service
@@ -26,7 +26,7 @@ public class TestScalableService extends AbstractScalableTest {
 	private CountDownLatch submittedLatch;
 
 	public TestScalableService() {
-		this.taskcount = this.max;
+		this.taskcount = 1000;
 		this.eventhandles = new ArrayList<IEventTaskHandle>(this.taskcount);
 		this.resulthandles = new ArrayList<IResultTaskHandle<Integer>>(this.taskcount);
 		final long temp = TimeUnit.SECONDS.convert(this.timeoutValue*2, this.timeoutUnit);
@@ -91,7 +91,7 @@ public class TestScalableService extends AbstractScalableTest {
 			@Override
 			public void run() {
 				for (int i = 0; i < taskcount; i++) {
-					final EventTask task = new EventTask();
+					final IOEventTask task = new IOEventTask();
 					final IEventTaskHandle handle = service.submit(task);
 					eventhandles.add(handle);
 				}
@@ -103,7 +103,7 @@ public class TestScalableService extends AbstractScalableTest {
 			@Override
 			public void run() {
 				for (int i = 0; i < taskcount; i++) {
-					final ResultTask task = new ResultTask(i);
+					final IOResultTask task = new IOResultTask(i);
 					final IResultTaskHandle<Integer> handle = service.submit(task);
 					resulthandles.add(handle);
 				}

@@ -4,11 +4,11 @@ import java.util.concurrent.TimeUnit;
 
 import hemera.core.execution.interfaces.task.IResultTask;
 
-public class ResultTask implements IResultTask<Integer> {
+public class IOResultTask implements IResultTask<Integer> {
 
 	private final int value;
 
-	public ResultTask(final int value) {
+	public IOResultTask(final int value) {
 		this.value = value;
 	}
 
@@ -19,10 +19,10 @@ public class ResultTask implements IResultTask<Integer> {
 		while (true) {
 			final long current = System.currentTimeMillis();
 			final long elapsed = current - start;
-			if (elapsed >= 1000) break;
+			if (elapsed >= 500) break;
 		}
 		// Simulate IO.
-		TimeUnit.SECONDS.sleep(1);
+		TimeUnit.MILLISECONDS.sleep(1000);
 		return this.value;
 	}
 }
