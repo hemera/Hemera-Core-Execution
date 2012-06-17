@@ -125,9 +125,15 @@ public class EventExecutable implements IEventTaskHandle {
 		try {
 			// This will catch the case where the execution has completed.
 			if (this.completed) return true;
-			// Perform wait.
 			this.completionLock.lock();
 			try {
+				// Must release execution lock before go into waiting to
+				// allow executor to acquire the lock and execute task.
+				// Here we still hold the completion lock, so the executor
+				// cannot signal completion before we go into waiting, so
+				// that we won't miss the signal.
+				this.executionLock.unlock();
+				// Perform wait.
 				if (value < 0 || unit == null) {
 					this.completionCondition.await();
 				} else {
@@ -136,9 +142,10 @@ public class EventExecutable implements IEventTaskHandle {
 			} finally {
 				this.completionLock.unlock();
 			}
-			// When reaches here, since this holds the execution lock, either
-			// the task has been completed or it has not yet been started, or
-			// it has been cancelled.
+			// When reaches here, re-acquire the execution lock, so either
+			// the task has been completed or it has not yet been started,
+			// or it has been cancelled.
+			this.executionLock.lock();
 			if (this.completed) return true;
 			else return false;
 		} finally {

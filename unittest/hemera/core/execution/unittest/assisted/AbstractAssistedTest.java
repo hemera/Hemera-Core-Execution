@@ -18,8 +18,9 @@ public class AbstractAssistedTest extends TestCase implements IServiceListener {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final IExceptionHandler handler = new LogExceptionHandler();
-		final int count = Runtime.getRuntime().availableProcessors()+1;
-		this.service = new AssistedService(handler, this, 1, 20, 100, TimeUnit.MILLISECONDS);
+		final int count = 10;
+		final int buffersize = 100;
+		this.service = new AssistedService(handler, this, count, buffersize, 100, TimeUnit.MILLISECONDS);
 		this.service.activate();
 		System.out.println("Activated.");
 	}

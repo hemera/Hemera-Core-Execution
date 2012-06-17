@@ -41,7 +41,7 @@ public class TestAssistedService extends AbstractAssistedTest {
 	public void test() {
 		// Task amount, must be even to allow each executor
 		// get the same amount of tasks.
-		final int n = 2;
+		final int n = 30;
 		// Even.
 		System.out.println("Even distribution:\nEach executor gets the same amount of tasks and each task has the same execution length.\n");
 		this.runEven(n);
@@ -59,7 +59,6 @@ public class TestAssistedService extends AbstractAssistedTest {
 				final IOResultTask task = new IOResultTask(i);
 				handles[i] = this.service.submit(task);
 			}
-			System.out.println("submitted");
 			for(int i = 0; i < count; i++) {
 				final int result = handles[i].getAndWait();
 				assertEquals(i, result);

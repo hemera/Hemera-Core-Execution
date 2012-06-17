@@ -26,7 +26,7 @@ public class TestScalableService extends AbstractScalableTest {
 	private CountDownLatch submittedLatch;
 
 	public TestScalableService() {
-		this.taskcount = 500;
+		this.taskcount = 300;
 		this.eventhandles = new ArrayList<IEventTaskHandle>(this.taskcount);
 		this.resulthandles = new ArrayList<IResultTaskHandle<Integer>>(this.taskcount);
 		final long temp = TimeUnit.SECONDS.convert(this.timeoutValue*2, this.timeoutUnit);
@@ -34,7 +34,7 @@ public class TestScalableService extends AbstractScalableTest {
 	}
 
 	public void test() throws Exception {
-		final int iteration = 10;
+		final int iteration = 5;
 		long duration = 0;
 		for (int i = 0; i < iteration; i++) {
 			duration += this.runSingleTest(i);
