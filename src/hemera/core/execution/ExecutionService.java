@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutionService;
+import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
@@ -32,6 +33,10 @@ public abstract class ExecutionService implements IExecutionService {
 	 */
 	protected final IExceptionHandler handler;
 	/**
+	 * The <code>ListenerWrapper</code> instance.
+	 */
+	protected final ListenerWrapper listenerWrapper;
+	/**
 	 * The <code>AtomicBoolean</code> activated flag.
 	 * <p>
 	 * Since concurrent modification invocations may
@@ -54,9 +59,21 @@ public abstract class ExecutionService implements IExecutionService {
 	 * instance.
 	 */
 	public ExecutionService(final IExceptionHandler handler) {
+		this(handler, null);
+	}
+	
+	/**
+	 * Constructor of <code>ExecutionService</code>.
+	 * @param handler The <code>IExceptionHandler</code>
+	 * instance.
+	 * @param listener The <code>IServiceListener</code>
+	 * instance.
+	 */
+	public ExecutionService(final IExceptionHandler handler, final IServiceListener listener) {
 		if (handler == null) throw new IllegalArgumentException("Exception handler cannot be null.");
 		this.logger = FileLogger.getLogger(this.getClass());
 		this.handler = handler;
+		this.listenerWrapper = new ListenerWrapper(listener, this.handler);
 		this.activated = new AtomicBoolean(false);
 		this.shutdown = new AtomicBoolean(false);
 		// Add exception handler as system shutdown hook.

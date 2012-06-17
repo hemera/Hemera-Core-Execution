@@ -26,7 +26,7 @@ public class TestScalableService extends AbstractScalableTest {
 	private CountDownLatch submittedLatch;
 
 	public TestScalableService() {
-		this.taskcount = 1000;
+		this.taskcount = 500;
 		this.eventhandles = new ArrayList<IEventTaskHandle>(this.taskcount);
 		this.resulthandles = new ArrayList<IResultTaskHandle<Integer>>(this.taskcount);
 		final long temp = TimeUnit.SECONDS.convert(this.timeoutValue*2, this.timeoutUnit);

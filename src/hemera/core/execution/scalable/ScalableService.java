@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import hemera.core.execution.ExecutionService;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.interfaces.scalable.IScaleExecutor;
 import hemera.core.execution.interfaces.task.IEventTask;
@@ -97,7 +98,27 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	 */
 	public ScalableService(final IExceptionHandler handler, final int min, final int max,
 			final long timeoutValue, final TimeUnit timeoutUnit) {
-		super(handler);
+		this(handler, null, min, max, timeoutValue, timeoutUnit);
+	}
+	
+	/**
+	 * Constructor of <code>ScalableService</code>.
+	 * @param handler The <code>IExceptionHandler</code>
+	 * instance.
+	 * @param listener The <code>IServiceListener</code>
+	 * instance.
+	 * @param min The <code>int</code> minimum number
+	 * of executors the service can shrink down to.
+	 * @param max The <code>int</code> maximum number
+	 * of executors the service can grow up to.
+	 * @param timeoutValue The <code>long</code> time-
+	 * out value used to terminate on-demand executor.
+	 * @param timeoutUnit The <code>TimeUnit</code> the
+	 * timeout value is in.
+	 */
+	public ScalableService(final IExceptionHandler handler, final IServiceListener listener,
+			final int min, final int max, final long timeoutValue, final TimeUnit timeoutUnit) {
+		super(handler, listener);
 		this.minCount = min;
 		this.maxCount = max;
 		this.timeoutValue = timeoutValue;
@@ -242,8 +263,9 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		final ScaleExecutor executor = new ScaleExecutor(name, this.handler, this, this.timeoutValue, this.timeoutUnit);
 		// Try to insert.
 		final boolean succeeded = this.executors.offer(executor);
+		// Maximum capacity reached, notify listener.
 		if (!succeeded) {
-			this.logger.warning("Execution service maximum capacity reached. Cannot create more on-demand executors.");
+			this.listenerWrapper.capacityReached();
 			return null;
 		} else {
 			executor.start();
