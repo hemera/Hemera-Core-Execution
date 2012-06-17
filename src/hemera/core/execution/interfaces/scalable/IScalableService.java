@@ -1,6 +1,10 @@
 package hemera.core.execution.interfaces.scalable;
 
 import hemera.core.execution.interfaces.IExecutionService;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>IScalableService</code> is an extension of
@@ -67,6 +71,63 @@ public interface IScalableService extends IExecutionService {
 	 * on-demand instance.
 	 */
 	public boolean remove(final IScaleExecutor executor);
+	
+	/**
+	 * Submit the given event task for execution.
+	 * <p>
+	 * This method uses a basic round-robin assignment
+	 * strategy to provide load-balancing.
+	 * <p>
+	 * Invocations of this method has three possible
+	 * outcomes:
+	 * 1. If there is an available executor to handle
+	 * the task, the task is assigned to the executor
+	 * and the invocation returns immediately.
+	 * 2. If there are no executors available and the
+	 * maximum executor count has not been reached,
+	 * a new on-demand executor is created and the
+	 * task is assigned to the executor. Then the
+	 * invocation returns without blocking.
+	 * 3. If there are no executors available and the
+	 * maximum executor count has been reached, this
+	 * invocation blocks until an executor becomes
+	 * available to accept the task, at which time,
+	 * the invocation returns.
+	 * @param task The <code>IEventTask</code> to be
+	 * submitted.
+	 * @return The <code>IEventTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public IEventTaskHandle submit(final IEventTask task);
+
+	/**
+	 * Submit the given result task for execution.
+	 * <p>
+	 * This method uses a basic round-robin assignment
+	 * strategy to provide load-balancing.
+	 * <p>
+	 * Invocations of this method has three possible
+	 * outcomes:
+	 * 1. If there is an available executor to handle
+	 * the task, the task is assigned to the executor
+	 * and the invocation returns immediately.
+	 * 2. If there are no executors available and the
+	 * maximum executor count has not been reached,
+	 * a new on-demand executor is created and the
+	 * task is assigned to the executor. Then the
+	 * invocation returns without blocking.
+	 * 3. If there are no executors available and the
+	 * maximum executor count has been reached, this
+	 * invocation blocks until an executor becomes
+	 * available to accept the task, at which time,
+	 * the invocation returns.
+	 * @param <V> The result task result return type.
+	 * @param task The <code>IResultTask</code> to be
+	 * submitted.
+	 * @return The <code>IResultTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task);
 	
 	/**
 	 * Retrieve the number of available executors to

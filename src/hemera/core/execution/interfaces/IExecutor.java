@@ -65,6 +65,10 @@ public interface IExecutor extends Runnable {
 	 * This method guarantees its thread safety by
 	 * delegating synchronization mechanism down to
 	 * its thread safe internal data structures.
+	 * <p>
+	 * The blocking behavior of this method depends
+	 * on the specific types of executors. This is
+	 * documented in the corresponding service.
 	 * @param task The <code>IEventTask</code> to be
 	 * executed.
 	 * @return The <code>IEventTaskHandle</code> for
@@ -80,6 +84,10 @@ public interface IExecutor extends Runnable {
 	 * This method guarantees its thread safety by
 	 * delegating synchronization mechanism down to
 	 * its thread safe internal data structures.
+	 * <p>
+	 * The blocking behavior of this method depends
+	 * on the specific types of executors. This is
+	 * documented in the corresponding service.
 	 * @param V The result task result type.
 	 * @param task The <code>IResultTask</code> to be
 	 * executed.

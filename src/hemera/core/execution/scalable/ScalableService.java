@@ -279,10 +279,12 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		final boolean succeeded = this.availables.offerLast(executor);
 		// If failed, then this executor is an excess one, and should not exist.
 		if (!succeeded) {
-			this.logger.warning("Excess executor detected and terminated: " + executor.getName());
 			executor.requestTerminate();
 			this.availables.remove(executor);
 			this.executors.remove(executor);
+			// Report exception to exception handler.
+			final RuntimeException exception = new RuntimeException("Excess executor detected and terminated: " + executor.getName());
+			this.handler.handle(exception);
 		}
 	}
 

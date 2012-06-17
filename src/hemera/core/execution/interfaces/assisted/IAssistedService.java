@@ -1,6 +1,10 @@
 package hemera.core.execution.interfaces.assisted;
 
 import hemera.core.execution.interfaces.IExecutionService;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>IAssistedService</code> is an extension of
@@ -46,6 +50,59 @@ public interface IAssistedService extends IExecutionService {
 	 * time of invocation, i.e. no tasks were stolen.
 	 */
 	public boolean assist();
+	
+	/**
+	 * Submit the given event task for execution.
+	 * <p>
+	 * This method internally performs load balancing
+	 * with all assist executors automatically using
+	 * work-stealing technique at task execution time.
+	 * The round-robin strategy is used at the task
+	 * assignment time.
+	 * <p>
+	 * Invocations of this method has two possible
+	 * outcomes:
+	 * 1. If the service capacity has not been reached,
+	 * meaning none of the assist executors internal
+	 * task buffers are full, the task is assigned and
+	 * the invocation returns immediately.
+	 * 2. If the service capacity has been reached,
+	 * this invocation blocks until an assigned task
+	 * completes, at which time the given new task is
+	 * assigned and this invocation returns.
+	 * @param task The <code>IEventTask</code> to be
+	 * submitted.
+	 * @return The <code>IEventTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public IEventTaskHandle submit(final IEventTask task);
+
+	/**
+	 * Submit the given result task for execution.
+	 * <p>
+	 * This method internally performs load balancing
+	 * with all assist executors automatically using
+	 * work-stealing technique at task execution time.
+	 * The round-robin strategy is used at the task
+	 * assignment time.
+	 * <p>
+	 * Invocations of this method has two possible
+	 * outcomes:
+	 * 1. If the service capacity has not been reached,
+	 * meaning none of the assist executors internal
+	 * task buffers are full, the task is assigned and
+	 * the invocation returns immediately.
+	 * 2. If the service capacity has been reached,
+	 * this invocation blocks until an assigned task
+	 * completes, at which time the given new task is
+	 * assigned and this invocation returns.
+	 * @param <V> The result task result return type.
+	 * @param task The <code>IResultTask</code> to be
+	 * submitted.
+	 * @return The <code>IResultTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task);
 	
 	/**
 	 * Retrieve the average waiting task queue length

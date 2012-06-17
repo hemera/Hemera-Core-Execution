@@ -39,7 +39,7 @@ public class AbstractScalableTest extends TestCase implements IServiceListener {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		this.service.shutdown();
+		this.service.shutdownAndWait();
 		System.out.println("Completed.");
 	}
 

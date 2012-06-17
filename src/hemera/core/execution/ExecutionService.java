@@ -10,7 +10,6 @@ import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
-import hemera.core.utility.logging.FileLogger;
 
 /**
  * <code>ExecutionService</code> defines abstraction
@@ -23,10 +22,6 @@ import hemera.core.utility.logging.FileLogger;
  * @version 1.0.0
  */
 public abstract class ExecutionService implements IExecutionService {
-	/**
-	 * The <code>FileLogger</code> instance.
-	 */
-	protected final FileLogger logger;
 	/**
 	 * The <code>IExceptionHandler</code> instance used
 	 * to gracefully allow executors handle exceptions.
@@ -71,7 +66,6 @@ public abstract class ExecutionService implements IExecutionService {
 	 */
 	public ExecutionService(final IExceptionHandler handler, final IServiceListener listener) {
 		if (handler == null) throw new IllegalArgumentException("Exception handler cannot be null.");
-		this.logger = FileLogger.getLogger(this.getClass());
 		this.handler = handler;
 		this.listenerWrapper = new ListenerWrapper(listener, this.handler);
 		this.activated = new AtomicBoolean(false);

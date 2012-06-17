@@ -1,6 +1,6 @@
 package hemera.core.execution.assisted;
 
-import java.util.Deque;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -11,6 +11,7 @@ import hemera.core.execution.Executor;
 import hemera.core.execution.executable.EventExecutable;
 import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
+import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
 import hemera.core.execution.interfaces.task.IEventTask;
@@ -33,17 +34,10 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	 */
 	private final IAssistedService group;
 	/**
-	 * The <code>Deque</code> of local task buffer
-	 * of <code>EventExecutable</code>.
-	 * <p>
-	 * This data structure needs to support a high
-	 * level of concurrency to allow multiple threads
-	 * to poll elements from it, since work-stealing
-	 * operates on the tail end and local execution
-	 * operates on the head end. Assignments are put
-	 * at the head.
+	 * The <code>IServiceListener</code> instance used
+	 * to notify critical events.
 	 */
-	private final Deque<EventExecutable> buffer;
+	private final IServiceListener listener;
 	/**
 	 * The <code>long</code> executor idle time value.
 	 */
@@ -53,6 +47,18 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	 * unit.
 	 */
 	private final TimeUnit idleunit;
+	/**
+	 * The <code>BlockingDeque</code> of local task
+	 * buffer of <code>EventExecutable</code>.
+	 * <p>
+	 * This data structure needs to support a high
+	 * level of concurrency to allow multiple threads
+	 * to poll elements from it, since work-stealing
+	 * operates on the tail end and local execution
+	 * operates on the head end. Assignments are put
+	 * at the head.
+	 */
+	private final BlockingDeque<EventExecutable> buffer;
 	/**
 	 * The idling <code>Lock</code>.
 	 */
@@ -71,21 +77,26 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	 * handling.
 	 * @param group The <code>IAssistedService</code>
 	 * shared by all assist executors.
+	 * @param listener The <code>IServiceListener</code>
+	 * instance used to notify critical events.
+	 * @param maxBufferSize The <code>int</code> upper
+	 * limit for the internal task buffer.
 	 * @param idletime The <code>long</code> eager-
 	 * idling waiting time value.
 	 * @param idleunit The <code>TimeUnit</code> eager-
 	 * idling waiting time unit.
 	 */
 	public AssistExecutor(final String name, final IExceptionHandler handler, final IAssistedService group,
-			final long idletime, final TimeUnit idleunit) {
+			final IServiceListener listener, final int maxBufferSize, final long idletime, final TimeUnit idleunit) {
 		super(name, handler);
 		this.group = group;
-		// TODO Replace with Java 7 ConcurrentLinkedDeque.
-		this.buffer = new LinkedBlockingDeque<EventExecutable>();
-		this.lock = new ReentrantLock();
-		this.idle = this.lock.newCondition();
+		this.listener = listener;
 		this.idletime = idletime;
 		this.idleunit = idleunit;
+		// TODO Replace with Java 7 ConcurrentLinkedDeque.
+		this.buffer = new LinkedBlockingDeque<EventExecutable>(maxBufferSize);
+		this.lock = new ReentrantLock();
+		this.idle = this.lock.newCondition();
 	}
 
 	@Override
@@ -175,7 +186,20 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// is operating on the head where other assist
 		// executors operate on the tail, thus lowering
 		// thread contention.
-		this.buffer.offerFirst(executable);
+		// First try to use non-blocking insertion to
+		// allow detection of capacity reached event.
+		final boolean succeeded = this.buffer.offerFirst(executable);
+		if (!succeeded) {
+			this.listener.capacityReached();
+			// Use blocking insertion to wait until an
+			// existing task completes.
+			try {
+				this.buffer.putFirst(executable);
+			} catch (final InterruptedException e) {
+				this.handler.handle(e);
+				this.doAssign(executable);
+			}
+		}
 		// Wake up idling.
 		this.wakeup();
 	}

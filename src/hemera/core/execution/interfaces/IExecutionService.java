@@ -122,25 +122,8 @@ public interface IExecutionService {
 	/**
 	 * Submit the given event task for execution.
 	 * <p>
-	 * This method internally performs load balancing
-	 * with all assist executors automatically using
-	 * work-stealing technique.
-	 * <p>
-	 * Invocations of this method has three possible
-	 * outcomes:
-	 * 1. If there is an available executor to handle
-	 * the task, the task is assigned to the executor
-	 * and the invocation returns immediately.
-	 * 2. If there are no executors available and the
-	 * maximum executor count has not been reached,
-	 * a new on-demand executor is created and the
-	 * task is assigned to the executor. Then the
-	 * invocation returns without blocking.
-	 * 3. If there are no executors available and the
-	 * maximum executor count has been reached, this
-	 * invocation blocks until an executor becomes
-	 * available to accept the task, at which time,
-	 * the invocation returns.
+	 * See type specific service interface for detailed
+	 * method behavior.
 	 * @param task The <code>IEventTask</code> to be
 	 * submitted.
 	 * @return The <code>IEventTaskHandle</code> of
@@ -151,25 +134,8 @@ public interface IExecutionService {
 	/**
 	 * Submit the given result task for execution.
 	 * <p>
-	 * This method internally performs load balancing
-	 * with all assist executors automatically using
-	 * work-stealing technique.
-	 * <p>
-	 * Invocations of this method has three possible
-	 * outcomes:
-	 * 1. If there is an available executor to handle
-	 * the task, the task is assigned to the executor
-	 * and the invocation returns immediately.
-	 * 2. If there are no executors available and the
-	 * maximum executor count has not been reached,
-	 * a new on-demand executor is created and the
-	 * task is assigned to the executor. Then the
-	 * invocation returns without blocking.
-	 * 3. If there are no executors available and the
-	 * maximum executor count has been reached, this
-	 * invocation blocks until an executor becomes
-	 * available to accept the task, at which time,
-	 * the invocation returns.
+	 * See type specific service interface for detailed
+	 * method behavior.
 	 * @param <V> The result task result return type.
 	 * @param task The <code>IResultTask</code> to be
 	 * submitted.

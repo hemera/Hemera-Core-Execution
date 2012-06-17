@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import hemera.core.execution.ExecutionService;
 import hemera.core.execution.interfaces.IExceptionHandler;
+import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
 import hemera.core.execution.interfaces.task.IEventTask;
@@ -26,6 +27,11 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 */
 	private final IAssistExecutor[] executors;
 	/**
+	 * The <code>int</code> maximum task buffer size
+	 * for the executors.
+	 */
+	private final int maxBufferSize;
+	/**
 	 * The <code>long</code> executor idle time value.
 	 */
 	private final long idletime;
@@ -39,22 +45,45 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 * track the next executor index.
 	 */
 	private final AtomicCyclicInteger index;
-
+	
 	/**
 	 * Constructor of <code>AssistedService</code>.
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance.
 	 * @param count The <code>int</code> number of
 	 * executors this service should create.
+	 * @param maxBufferSize The <code>int</code> maximum
+	 * task buffer size for the executors.
 	 * @param idletime The <code>long</code> eager-
 	 * idling waiting time value.
 	 * @param idleunit The <code>TimeUnit</code> eager-
 	 * idling waiting time unit.
 	 */
-	public AssistedService(final IExceptionHandler handler, final int count, final long idletime,
-			final TimeUnit idleunit) {
-		super(handler);
+	public AssistedService(final IExceptionHandler handler, final int count, final int maxBufferSize,
+			final long idletime, final TimeUnit idleunit) {
+		this(handler, null, count, maxBufferSize, idletime, idleunit);
+	}
+
+	/**
+	 * Constructor of <code>AssistedService</code>.
+	 * @param handler The <code>IExceptionHandler</code>
+	 * instance.
+	 * @param listener The <code>IServiceListener</code>
+	 * instance.
+	 * @param count The <code>int</code> number of
+	 * executors this service should create.
+	 * @param maxBufferSize The <code>int</code> maximum
+	 * task buffer size for the executors.
+	 * @param idletime The <code>long</code> eager-
+	 * idling waiting time value.
+	 * @param idleunit The <code>TimeUnit</code> eager-
+	 * idling waiting time unit.
+	 */
+	public AssistedService(final IExceptionHandler handler, final IServiceListener listener, final int count,
+			final int maxBufferSize, final long idletime, final TimeUnit idleunit) {
+		super(handler, listener);
 		this.executors = new IAssistExecutor[count];
+		this.maxBufferSize = maxBufferSize;
 		this.idletime = idletime;
 		this.idleunit = idleunit;
 		this.index = new AtomicCyclicInteger(0, this.executors.length-1);
@@ -67,7 +96,8 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 		// executors are created yet.
 		for (int i = 0; i < this.executors.length; i++) {
 			final String name = "AssistExecutor-" + i;
-			final AssistExecutor executor = new AssistExecutor(name, this.handler, this, this.idletime, this.idleunit);
+			final AssistExecutor executor = new AssistExecutor(name, this.handler, this, this.listenerWrapper,
+					this.maxBufferSize, this.idletime, this.idleunit);
 			this.executors[i] = executor;
 		}
 		// Activate executors.

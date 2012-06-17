@@ -1,6 +1,10 @@
 package hemera.core.execution.interfaces.assisted;
 
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.IEventTask;
+import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
+import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
 /**
  * <code>IAssistExecutor</code> defines the interface
@@ -17,7 +21,9 @@ import hemera.core.execution.interfaces.IExecutor;
  * on the task buffer during execution and assisting.
  * For every successfully assigned task, it returns an
  * appropriate task handle back to the caller for task
- * handling.
+ * handling. The internal task buffer has a defined
+ * upper limit to prevent memory leak. When this limit
+ * is reached, new task assignments will block.
  * <p>
  * <code>IAssistExecutor</code> only executes assigned
  * tasks once. It internally handles discarding of
@@ -78,6 +84,47 @@ public interface IAssistExecutor extends IExecutor {
 	 * tasks in its internal buffer.
 	 */
 	public boolean assist();
+	
+	/**
+	 * Assign the given event task to this executor.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * <p>
+	 * This method will block if the maximum limit of
+	 * the internal task buffer has been reached. The
+	 * new task assignment will return when an already
+	 * assigned task completes.
+	 * @param task The <code>IEventTask</code> to be
+	 * executed.
+	 * @return The <code>IEventTaskHandle</code> for
+	 * the assigned event task. 
+	 * @throws IllegalStateException If the executor
+	 * has been terminated.
+	 */
+	public IEventTaskHandle assign(final IEventTask task) throws IllegalStateException;
+	
+	/**
+	 * Assign the given result task to this executor.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * <p>
+	 * This method will block if the maximum limit of
+	 * the internal task buffer has been reached. The
+	 * new task assignment will return when an already
+	 * assigned task completes.
+	 * @param V The result task result type.
+	 * @param task The <code>IResultTask</code> to be
+	 * executed.
+	 * @return The <code>IResultTaskHandle</code> for
+	 * the assigned result task.
+	 * @throws IllegalStateException If the executor
+	 * has been terminated.
+	 */
+	public <V> IResultTaskHandle<V> assign(final IResultTask<V> task) throws IllegalStateException;
 	
 	/**
 	 * Retrieve the length of the waiting task queue.
