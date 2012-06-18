@@ -7,30 +7,25 @@ import hemera.core.execution.interfaces.task.IResultTask;
 public class IOResultTask implements IResultTask<Integer> {
 
 	private final int value;
-	private final long runtime;
-	private final long iotime;
-	
-	public IOResultTask(final int value) {
-		this(value, 500, 1000);
-	}
+	private final long duration;
 
-	public IOResultTask(final int value, final long runtime, final long iotime) {
+	public IOResultTask(final int value, final long duration) {
 		this.value = value;
-		this.runtime = runtime;
-		this.iotime = iotime;
+		this.duration = duration;
 	}
 
 	@Override
 	public Integer execute() throws Exception {
 		// Simulate processing.
 		final long start = System.currentTimeMillis();
+		final long cputime = this.duration/2;
 		while (true) {
 			final long current = System.currentTimeMillis();
 			final long elapsed = current - start;
-			if (elapsed >= this.runtime) break;
+			if (elapsed >= cputime) break;
 		}
 		// Simulate IO.
-		TimeUnit.MILLISECONDS.sleep(this.iotime);
+		TimeUnit.MILLISECONDS.sleep(this.duration-cputime);
 		return this.value;
 	}
 }
