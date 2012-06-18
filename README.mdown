@@ -2,10 +2,10 @@
 
 Created by **Yi Wang (hemera)**
 
-**Hemera Engine - Core Execution** defines the core project that provides the
-fundamental execution layer for the runtime environment. It provides high
-concurrency capabilities to allow application logic fully utilize the multi-
-core underlying hardware.
+**Hemera Engine - Core Execution** defines one of the core projects that
+together form the basis of the engine. It provides the fundamental execution
+layer of the runtime environment, with high concurrency capabilities to
+allow the application logic fully utilize the underlying hardware.
 
 # Documentation
 There are two types of execution services provided by the project. The
