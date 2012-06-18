@@ -98,7 +98,7 @@ public class CompareTest extends TestCase implements IServiceListener {
 	private void runAssistedService() throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
 		final int buffersize = this.executorCount;
-		final IAssistedService service = new AssistedService(handler, this, this.executorCount, buffersize, this.taskDuration/10, TimeUnit.MILLISECONDS);
+		final IAssistedService service = new AssistedService(handler, this, this.executorCount, buffersize, 200, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("AssistedService activated.");
 
