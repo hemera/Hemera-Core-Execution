@@ -11,9 +11,9 @@ public class TestThrashing {
 
 	public static void main(String[] args) throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
-		final int count = 2000;
+		final int count = 1000;
 		final int buffersize = 100;
-		AssistedService service = new AssistedService(handler, count, buffersize, 500, TimeUnit.MILLISECONDS);
+		AssistedService service = new AssistedService(handler, count, buffersize, 200, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("Activated.");
 		
