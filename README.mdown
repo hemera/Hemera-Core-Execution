@@ -2,10 +2,17 @@
 
 Created by **Yi Wang (hemera)**
 
-**Hemera Engine** TODO
+**Hemera Engine - Core Execution** defines the core project that provides the
+fundamental execution layer for the runtime environment. It provides high
+concurrency capabilities to allow application logic fully utilize the multi-
+core underlying hardware.
 
 # Documentation
-TODO
+There are two types of execution services provided by the project. The
+ScalableService and the AssistedService. ScalableService allows the number
+of execution threads to grow as demand increases. Assisted service uses
+work-stealing design to best utilize system resources. Please see individual
+interface documentations for details.
 
 # License
 
