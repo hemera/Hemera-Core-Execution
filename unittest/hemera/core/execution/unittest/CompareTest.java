@@ -23,26 +23,26 @@ import junit.framework.TestCase;
  * assisted service.
  * 
  * Run-1:
- * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 3522ms
- * ScalableService MinCount-1000 MaxCount-1000 Cost: 4030ms
- * Difference: 14.4%
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27575ms
+ * ScalableService MinCount-1000 MaxCount-1000 Cost: 28768ms
+ * Difference: 4.3%
  * 
  * Run-2:
- * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 3332ms
- * ScalableService MinCount-1000 MaxCount-1000 Cost: 3951ms
- * Difference: 18.6%
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27641ms
+ * ScalableService MinCount-1000 MaxCount-1000 Cost: 29670ms
+ * Difference: 7.3%
  * 
  * Run-3:
- * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 3607ms
- * ScalableService MinCount-1000 MaxCount-1000 Cost: 4029ms
- * Difference: 11.7%
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27094ms
+ * ScalableService MinCount-1000 MaxCount-1000 Cost: 28601ms
+ * Difference: 5.6%
  */
 public class CompareTest extends TestCase implements IServiceListener {
 	
 	private final int executorCount = 1000;
 	@SuppressWarnings("unchecked")
-	private final IResultTask<Integer>[] tasks = new IResultTask[1000];
-	private final long taskDuration = 1000;
+	private final IResultTask<Integer>[] tasks = new IResultTask[10000];
+	private final long taskDuration = 2000;
 	
 	public CompareTest() {
 		final Random random = new Random();
