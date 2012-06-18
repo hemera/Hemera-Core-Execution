@@ -36,56 +36,87 @@ import junit.framework.TestCase;
  * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27094ms
  * ScalableService MinCount-1000 MaxCount-1000 Cost: 28601ms
  * Difference: 5.6%
+ * 
+ * Run-4:
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27045ms
+ * ScalableService MinCount-700 MaxCount-1000 Cost: 41002ms
+ * Difference: 51.6%
+ * 
+ * Run-5:
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27937ms
+ * ScalableService MinCount-700 MaxCount-1000 Cost: 42669ms
+ * Difference: 52.7%
+ * 
+ * Run-6:
+ * AssistedService ExecutorCount-1000 BufferSize-1000 Cost: 27145ms
+ * ScalableService MinCount-700 MaxCount-1000 Cost: 41287ms
+ * Difference: 52.0%
  */
 public class CompareTest extends TestCase implements IServiceListener {
 	
 	private final int executorCount = 1000;
+	private final int scalableExecutorMin = (int)(this.executorCount*0.7);
 	@SuppressWarnings("unchecked")
 	private final IResultTask<Integer>[] tasks = new IResultTask[10000];
+	private final int[] taskValues = new int[this.tasks.length];
 	private final long taskDuration = 2000;
+	
+	private long assistedCost;
+	private long scalableCost;
 	
 	public CompareTest() {
 		final Random random = new Random();
 		long lastDuration = 0;
 		for(int i = 0; i < this.tasks.length; i++) {
+			final int value = random.nextInt();
 			if (i % 2 == 0) {
 				final double percentage = random.nextDouble();
 				lastDuration = (long)(this.taskDuration*2 * percentage);
-				this.tasks[i] = new IOResultTask(i, lastDuration);
+				this.tasks[i] = new IOResultTask(value, lastDuration);
 			} else {
 				final long duration = this.taskDuration*2 - lastDuration;
-				this.tasks[i] = new IOResultTask(i, duration);
+				this.tasks[i] = new IOResultTask(value, duration);
 			}
+			this.taskValues[i] = value;
 		}
 		System.out.println("TaskCount-" + this.tasks.length + " TaskDuration-" + this.taskDuration);
 		System.out.println("===========================================================");
 	}
 	
-	public void testAssistedService() throws Exception {
+	public void test() throws Exception {
+		this.runAssistedService();
+		System.out.println("===========================================================");
+		this.runScalableService();
+		System.out.println("===========================================================");
+		final double ratio = (double)this.scalableCost / (double)this.assistedCost - 1;
+		final double percentage = ratio*100.0;
+		final String percentageStr = String.valueOf(percentage);
+		final int index = percentageStr.indexOf(".");
+		System.err.println("Difference: " + percentageStr.substring(0, index+2) + "%");
+	}
+	
+	private void runAssistedService() throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
 		final int buffersize = this.executorCount;
 		final IAssistedService service = new AssistedService(handler, this, this.executorCount, buffersize, this.taskDuration/10, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("AssistedService activated.");
 
-		final long cost = this.runTest(service);
-		System.err.println("AssistedService ExecutorCount-" + this.executorCount + " BufferSize-" + buffersize + " Cost: " + cost + "ms");
+		this.assistedCost = this.runTest(service);
+		System.err.println("AssistedService ExecutorCount-" + this.executorCount + " BufferSize-" + buffersize + " Cost: " + this.assistedCost + "ms");
 		
 		service.shutdownAndWait();
 		System.out.println("AssistedService shutdown.");
-		System.out.println("===========================================================");
 	}
 	
-	public void testScalableService() throws Exception {
+	private void runScalableService() throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
-		final int min = this.executorCount;
-		final int max = this.executorCount;
-		final IScalableService service = new ScalableService(handler, this, min, max, this.taskDuration/10, TimeUnit.MILLISECONDS);
+		final IScalableService service = new ScalableService(handler, this, this.scalableExecutorMin, this.executorCount, this.taskDuration/10, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("ScalableService activated.");
 
-		final long cost = this.runTest(service);
-		System.err.println("ScalableService MinCount-" + min + " MaxCount-" + max + " Cost: " + cost + "ms");
+		this.scalableCost = this.runTest(service);
+		System.err.println("ScalableService MinCount-" + this.scalableExecutorMin + " MaxCount-" + this.executorCount + " Cost: " + this.scalableCost + "ms");
 		
 		service.shutdownAndWait();
 		System.out.println("ScalableService shutdown.");
@@ -108,8 +139,9 @@ public class CompareTest extends TestCase implements IServiceListener {
 		thread.start();
 		latch.await();
 		for(int i = 0; i < this.tasks.length; i++) {
+			final int expected = this.taskValues[i];
 			final int result = handles[i].getAndWait();
-			assertEquals(i, result);
+			assertEquals(expected, result);
 		}
 		final long end = System.nanoTime();
 		final long duration = TimeUnit.NANOSECONDS.toMillis((end-start));
