@@ -13,8 +13,10 @@ import hemera.core.execution.interfaces.IExecutor;
 import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.interfaces.scalable.IScaleExecutor;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -187,6 +189,11 @@ public class ScalableService extends ExecutionService implements IScalableServic
 
 	@Override
 	protected IEventTaskHandle doSubmit(final IEventTask task) {
+		return this.nextScaleExecutor().assign(task);
+	}
+	
+	@Override
+	protected ICyclicTaskHandle doSubmit(final ICyclicTask task) {
 		return this.nextScaleExecutor().assign(task);
 	}
 

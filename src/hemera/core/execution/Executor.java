@@ -4,8 +4,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -154,6 +156,24 @@ public abstract class Executor implements IExecutor {
 	 * the assigned event task. 
 	 */
 	protected abstract IEventTaskHandle doAssign(final IEventTask task);
+	
+	@Override
+	public final  ICyclicTaskHandle assign(final ICyclicTask task) throws IllegalStateException {
+		if (this.hasRequestedTermination()) {
+			throw new IllegalStateException("Executor has been requested to terminate: " + this.getName());
+		}
+		return this.doAssign(task);
+	}
+	
+	/**
+	 * Perform the assignment logic, all status has
+	 * been checked.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * executed.
+	 * @return The <code>ICyclicTaskHandle</code> for
+	 * the assigned event task. 
+	 */
+	protected abstract ICyclicTaskHandle doAssign(final ICyclicTask task);
 
 	@Override
 	public final <V> IResultTaskHandle<V> assign(final IResultTask<V> task) throws IllegalStateException {

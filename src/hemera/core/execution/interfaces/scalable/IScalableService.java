@@ -1,8 +1,10 @@
 package hemera.core.execution.interfaces.scalable;
 
 import hemera.core.execution.interfaces.IExecutionService;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -99,6 +101,35 @@ public interface IScalableService extends IExecutionService {
 	 * the submitted task.
 	 */
 	public IEventTaskHandle submit(final IEventTask task);
+	
+	/**
+	 * Submit the given cyclic task for repeated task
+	 * execution.
+	 * <p>
+	 * This method uses a basic round-robin assignment
+	 * strategy to provide load-balancing.
+	 * <p>
+	 * Invocations of this method has three possible
+	 * outcomes:
+	 * 1. If there is an available executor to handle
+	 * the task, the task is assigned to the executor
+	 * and the invocation returns immediately.
+	 * 2. If there are no executors available and the
+	 * maximum executor count has not been reached,
+	 * a new on-demand executor is created and the
+	 * task is assigned to the executor. Then the
+	 * invocation returns without blocking.
+	 * 3. If there are no executors available and the
+	 * maximum executor count has been reached, this
+	 * invocation blocks until an executor becomes
+	 * available to accept the task, at which time,
+	 * the invocation returns.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * submitted.
+	 * @return The <code>ICyclicTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public ICyclicTaskHandle submit(final ICyclicTask task);
 
 	/**
 	 * Submit the given result task for execution.

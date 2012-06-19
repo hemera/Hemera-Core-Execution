@@ -7,8 +7,10 @@ import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 import hemera.core.utility.AtomicCyclicInteger;
@@ -128,6 +130,11 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 
 	@Override
 	protected IEventTaskHandle doSubmit(final IEventTask task) {
+		return this.nextAssistExecutor().assign(task);
+	}
+	
+	@Override
+	protected ICyclicTaskHandle doSubmit(final ICyclicTask task) {
 		return this.nextAssistExecutor().assign(task);
 	}
 

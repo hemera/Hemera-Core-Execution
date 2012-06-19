@@ -6,8 +6,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutionService;
 import hemera.core.execution.interfaces.IServiceListener;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -148,6 +150,25 @@ public abstract class ExecutionService implements IExecutionService {
 	 * <code>null</code>.
 	 */
 	protected abstract IEventTaskHandle doSubmit(final IEventTask task);
+	
+	@Override
+	public ICyclicTaskHandle submit(final ICyclicTask task) {
+		this.exceptionCheck(task);
+		final ICyclicTaskHandle handle = this.doSubmit(task);
+		if (handle == null) throw new RuntimeException("Service error: submission of task failed even though service is running.");
+		return handle;
+	}
+	
+	/**
+	 * Perform the service type specific cyclic task
+	 * assignment.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * submitted.
+	 * @return The <code>ICyclicTaskHandle</code> of
+	 * the given task. This method should never return
+	 * <code>null</code>.
+	 */
+	protected abstract ICyclicTaskHandle doSubmit(final ICyclicTask task);
 
 	@Override
 	public <V> IResultTaskHandle<V> submit(final IResultTask<V> task) {

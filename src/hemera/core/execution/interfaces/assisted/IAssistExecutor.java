@@ -1,8 +1,10 @@
 package hemera.core.execution.interfaces.assisted;
 
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -104,6 +106,26 @@ public interface IAssistExecutor extends IExecutor {
 	 * has been terminated.
 	 */
 	public IEventTaskHandle assign(final IEventTask task) throws IllegalStateException;
+	
+	/**
+	 * Assign the given cyclic task to this executor.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * <p>
+	 * This method will block if the maximum limit of
+	 * the internal task buffer has been reached. The
+	 * new task assignment will return when an already
+	 * assigned task completes.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * executed.
+	 * @return The <code>ICyclicTaskHandle</code> for
+	 * the assigned cyclic task. 
+	 * @throws IllegalStateException If the executor
+	 * has been terminated.
+	 */
+	public ICyclicTaskHandle assign(final ICyclicTask task) throws IllegalStateException;
 	
 	/**
 	 * Assign the given result task to this executor.

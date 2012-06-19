@@ -1,8 +1,10 @@
 package hemera.core.execution.interfaces.assisted;
 
 import hemera.core.execution.interfaces.IExecutionService;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -76,6 +78,33 @@ public interface IAssistedService extends IExecutionService {
 	 * the submitted task.
 	 */
 	public IEventTaskHandle submit(final IEventTask task);
+	
+	/**
+	 * Submit the given cyclic task for repeated task
+	 * execution.
+	 * <p>
+	 * This method internally performs load balancing
+	 * with all assist executors automatically using
+	 * work-stealing technique at task execution time.
+	 * The round-robin strategy is used at the task
+	 * assignment time.
+	 * <p>
+	 * Invocations of this method has two possible
+	 * outcomes:
+	 * 1. If the service capacity has not been reached,
+	 * meaning none of the assist executors internal
+	 * task buffers are full, the task is assigned and
+	 * the invocation returns immediately.
+	 * 2. If the service capacity has been reached,
+	 * this invocation blocks until an assigned task
+	 * completes, at which time the given new task is
+	 * assigned and this invocation returns.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * submitted.
+	 * @return The <code>ICyclicTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public ICyclicTaskHandle submit(final ICyclicTask task);
 
 	/**
 	 * Submit the given result task for execution.

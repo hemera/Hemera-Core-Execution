@@ -8,14 +8,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import hemera.core.execution.Executor;
+import hemera.core.execution.executable.CyclicExecutable;
 import hemera.core.execution.executable.EventExecutable;
 import hemera.core.execution.executable.ResultExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -163,6 +166,13 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	@Override
 	protected IEventTaskHandle doAssign(final IEventTask task) {
 		final EventExecutable executable = new EventExecutable(task);
+		this.doAssign(executable);
+		return executable;
+	}
+	
+	@Override
+	protected ICyclicTaskHandle doAssign(final ICyclicTask task) {
+		final CyclicExecutable executable = new CyclicExecutable(task, this.handler);
 		this.doAssign(executable);
 		return executable;
 	}

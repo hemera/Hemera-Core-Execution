@@ -1,8 +1,10 @@
 package hemera.core.execution.interfaces.scalable;
 
 import hemera.core.execution.interfaces.IExecutor;
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -57,6 +59,23 @@ public interface IScaleExecutor extends IExecutor {
 	 * task assigned to this executor already.
 	 */
 	public IEventTaskHandle assign(final IEventTask task) throws IllegalStateException;
+	
+	/**
+	 * Assign the given cyclic task to this executor
+	 * if and only if there is no existing assigned
+	 * task yet.
+	 * <p>
+	 * This method guarantees its thread safety by
+	 * delegating synchronization mechanism down to
+	 * its thread safe internal data structures.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * executed.
+	 * @return The <code>ICyclicTaskHandle</code> for
+	 * the assigned cyclic task.
+	 * @throws IllegalStateException If there is a
+	 * task assigned to this executor already.
+	 */
+	public ICyclicTaskHandle assign(final ICyclicTask task) throws IllegalStateException;
 	
 	/**
 	 * Assign the given result task to this executor

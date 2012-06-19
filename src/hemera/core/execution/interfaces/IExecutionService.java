@@ -2,8 +2,10 @@ package hemera.core.execution.interfaces;
 
 import java.util.concurrent.TimeUnit;
 
+import hemera.core.execution.interfaces.task.ICyclicTask;
 import hemera.core.execution.interfaces.task.IEventTask;
 import hemera.core.execution.interfaces.task.IResultTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
 
@@ -130,6 +132,19 @@ public interface IExecutionService {
 	 * the submitted task.
 	 */
 	public IEventTaskHandle submit(final IEventTask task);
+	
+	/**
+	 * Submit the given cyclic task for repeated task
+	 * execution.
+	 * <p>
+	 * See type specific service interface for detailed
+	 * method behavior.
+	 * @param task The <code>ICyclicTask</code> to be
+	 * submitted.
+	 * @return The <code>ICyclicTaskHandle</code> of
+	 * the submitted task.
+	 */
+	public ICyclicTaskHandle submit(final ICyclicTask task);
 
 	/**
 	 * Submit the given result task for execution.
