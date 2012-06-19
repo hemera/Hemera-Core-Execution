@@ -82,24 +82,6 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	 * demand executor index.
 	 */
 	private final AtomicInteger ondemandIndex;
-
-	/**
-	 * Constructor of <code>ScalableService</code>.
-	 * @param handler The <code>IExceptionHandler</code>
-	 * instance.
-	 * @param min The <code>int</code> minimum number
-	 * of executors the service can shrink down to.
-	 * @param max The <code>int</code> maximum number
-	 * of executors the service can grow up to.
-	 * @param timeoutValue The <code>long</code> time-
-	 * out value used to terminate on-demand executor.
-	 * @param timeoutUnit The <code>TimeUnit</code> the
-	 * timeout value is in.
-	 */
-	public ScalableService(final IExceptionHandler handler, final int min, final int max,
-			final long timeoutValue, final TimeUnit timeoutUnit) {
-		this(handler, null, min, max, timeoutValue, timeoutUnit);
-	}
 	
 	/**
 	 * Constructor of <code>ScalableService</code>.

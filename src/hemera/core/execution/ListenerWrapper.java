@@ -57,28 +57,19 @@ public class ListenerWrapper implements IServiceListener {
 	/**
 	 * Constructor of <code>ListenerWrapper</code>.
 	 * @param listener The <code>IServiceListener</code>
-	 * instance. If this value is <code>null</code>,
-	 * then all operations provided by the wrapper will
-	 * directly return without performing any operations.
+	 * instance.
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance used by the service.
 	 */
 	public ListenerWrapper(final IServiceListener listener, final IExceptionHandler handler) {
 		this.listener = listener;
 		this.handler = handler;
-		if (this.listener != null) {
-			this.lock = new ReentrantLock();
-			this.frequencyNano = this.listener.getFrequency(TimeUnit.NANOSECONDS);
-		} else {
-			this.lock = null;
-			this.frequencyNano = 0;
-		}
+		this.lock = new ReentrantLock();
+		this.frequencyNano = this.listener.getFrequency(TimeUnit.NANOSECONDS);
 	}
 
 	@Override
 	public void capacityReached() {
-		// Allow listener to be null.
-		if (this.listener == null) return;
 		// Only allow a single thread to pass through at a time.
 		this.lock.lock();
 		try {
@@ -97,7 +88,6 @@ public class ListenerWrapper implements IServiceListener {
 
 	@Override
 	public long getFrequency(final TimeUnit unit) {
-		if (this.listener == null) return -1;
-		else return this.listener.getFrequency(unit);
+		return this.listener.getFrequency(unit);
 	}
 }

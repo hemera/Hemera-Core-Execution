@@ -45,24 +45,6 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 * track the next executor index.
 	 */
 	private final AtomicCyclicInteger index;
-	
-	/**
-	 * Constructor of <code>AssistedService</code>.
-	 * @param handler The <code>IExceptionHandler</code>
-	 * instance.
-	 * @param count The <code>int</code> number of
-	 * executors this service should create.
-	 * @param maxBufferSize The <code>int</code> maximum
-	 * task buffer size for the executors.
-	 * @param idletime The <code>long</code> eager-
-	 * idling waiting time value.
-	 * @param idleunit The <code>TimeUnit</code> eager-
-	 * idling waiting time unit.
-	 */
-	public AssistedService(final IExceptionHandler handler, final int count, final int maxBufferSize,
-			final long idletime, final TimeUnit idleunit) {
-		this(handler, null, count, maxBufferSize, idletime, idleunit);
-	}
 
 	/**
 	 * Constructor of <code>AssistedService</code>.

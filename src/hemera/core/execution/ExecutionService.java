@@ -47,15 +47,6 @@ public abstract class ExecutionService implements IExecutionService {
 	 * be provided.
 	 */
 	private final AtomicBoolean shutdown;
-
-	/**
-	 * Constructor of <code>ExecutionService</code>.
-	 * @param handler The <code>IExceptionHandler</code>
-	 * instance.
-	 */
-	public ExecutionService(final IExceptionHandler handler) {
-		this(handler, null);
-	}
 	
 	/**
 	 * Constructor of <code>ExecutionService</code>.
@@ -66,6 +57,7 @@ public abstract class ExecutionService implements IExecutionService {
 	 */
 	public ExecutionService(final IExceptionHandler handler, final IServiceListener listener) {
 		if (handler == null) throw new IllegalArgumentException("Exception handler cannot be null.");
+		else if (listener == null) throw new IllegalArgumentException("Service listener cannot be null.");
 		this.handler = handler;
 		this.listenerWrapper = new ListenerWrapper(listener, this.handler);
 		this.activated = new AtomicBoolean(false);
