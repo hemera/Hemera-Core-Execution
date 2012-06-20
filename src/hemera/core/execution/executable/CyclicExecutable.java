@@ -56,7 +56,8 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 			final long start = System.nanoTime();
 			// Execute.
 			try {
-				this.task.execute();
+				final boolean shouldContinue = this.task.execute();
+				if (!shouldContinue) this.terminate();
 			} catch (Exception e) {
 				this.handler.handle(e);
 			}

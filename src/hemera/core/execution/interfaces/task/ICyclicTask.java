@@ -65,7 +65,23 @@ import java.util.concurrent.TimeUnit;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public interface ICyclicTask extends IEventTask {
+public interface ICyclicTask {
+	
+	/**
+	 * Execute the cyclic task logic.
+	 * <p>
+	 * The thread safety semantics of this method should
+	 * be determined based on the execution context of
+	 * this task. It is guaranteed that only a single
+	 * executor thread will invoke this method, however,
+	 * there is no guarantee as which thread performs the
+	 * invocation.
+	 * @return <code>true</code> if execution should be
+	 * continued onto the next cycle. <code>false</code>
+	 * if cyclic task should be terminated.
+	 * @throws Exception If any processing failed.
+	 */
+	public boolean execute() throws Exception;
 	
 	/**
 	 * Retrieve the number of cycles this task should

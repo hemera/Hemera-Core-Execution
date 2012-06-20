@@ -10,11 +10,12 @@ public class FiniteCyclicTask implements ICyclicTask {
 	public volatile int count;
 
 	@Override
-	public void execute() throws Exception {
+	public boolean execute() throws Exception {
 		final long elapsed = (this.last==0) ? 0 : System.currentTimeMillis() - this.last;
 		System.out.println("Executed: " + count + ". Elapsed: " + elapsed);
 		this.last = System.currentTimeMillis();
 		this.count++;
+		return true;
 	}
 
 	@Override

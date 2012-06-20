@@ -79,7 +79,6 @@ public class TestCyclicTask extends TestCase implements IServiceListener {
 		final int terminatingPoint = 17;
 		final SelfTerminatingCyclicTask task = new SelfTerminatingCyclicTask(terminatingPoint);
 		final ICyclicTaskHandle handle = service.submit(task);
-		task.handle = handle;
 		handle.await();
 		assertEquals(terminatingPoint, task.count);
 	}
