@@ -48,9 +48,7 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 	
 	@Override
 	protected void executeTask() throws Exception {
-		// Calculate cycle maximum duration.
-		final int frequency = this.task.getMaxFrequency();
-		final long maxDuration = TimeUnit.NANOSECONDS.convert(1, TimeUnit.SECONDS) / frequency;
+		final long maxDuration = this.task.getCycleLimit(TimeUnit.NANOSECONDS);
 		// Execute until it should terminate.
 		int count = 0;
 		while (true) {

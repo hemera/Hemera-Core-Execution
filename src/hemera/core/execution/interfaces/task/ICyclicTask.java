@@ -1,5 +1,7 @@
 package hemera.core.execution.interfaces.task;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * <code>ICyclicTask</code> defines the interface of an
  * atomic unit of logic that requires to be executed in
@@ -58,17 +60,6 @@ package hemera.core.execution.interfaces.task;
 public interface ICyclicTask extends IEventTask {
 	
 	/**
-	 * Signal this cyclic task to gracefully terminate
-	 * its internal logic due to either explicit task
-	 * termination or execution service being shutting
-	 * down.
-	 * <p>
-	 * Implementation should release any resources the
-	 * task may have allocated to gracefully terminate.
-	 */
-	public void terminate();
-	
-	/**
 	 * Retrieve the number of cycles this task should
 	 * be executed.
 	 * @return The <code>int</code> number of cycles
@@ -83,16 +74,19 @@ public interface ICyclicTask extends IEventTask {
 	public int getCycleCount();
 	
 	/**
-	 * Retrieve the maximum execution frequency in a
-	 * second. In other words, the maximum number of
-	 * times the task should be executed within a
-	 * second.
+	 * Retrieve the maximum allowed execution time in
+	 * between two consecutive cycles. This value
+	 * determines the desired execution rate of the
+	 * task. The rate is defined as the inverse of this
+	 * value, which would be frequency.
 	 * <p>
 	 * If the returned value is less than or equal to
 	 * 0, the cyclic task will be executed as fast as
 	 * the execution of logic can be.
-	 * @return The <code>int</code> maximum number of
-	 * times this task should be executed.
+	 * @param unit The <code>TimeUnit</code> returned
+	 * value is in.
+	 * @return The <code>long</code> cycle time limit
+	 * in the given time unit.
 	 */
-	public int getMaxFrequency();
+	public long getCycleLimit(final TimeUnit unit);
 }
