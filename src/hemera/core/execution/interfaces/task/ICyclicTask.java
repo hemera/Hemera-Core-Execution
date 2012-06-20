@@ -84,6 +84,17 @@ public interface ICyclicTask {
 	public boolean execute() throws Exception;
 	
 	/**
+	 * Cleanup any allocated resources during the logic
+	 * execution. Such as closing sockets and release
+	 * locks.
+	 * <p>
+	 * This method is invoked after the cyclic execution
+	 * terminates.
+	 * @throws Exception If any cleanup failed.
+	 */
+	public void cleanup() throws Exception;
+	
+	/**
 	 * Retrieve the number of cycles this task should
 	 * be executed.
 	 * @return The <code>int</code> number of cycles

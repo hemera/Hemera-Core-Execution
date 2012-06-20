@@ -27,4 +27,9 @@ public class FiniteCyclicTask implements ICyclicTask {
 	public long getCycleLimit(final TimeUnit unit) {
 		return unit.convert(1, TimeUnit.SECONDS);
 	}
+
+	@Override
+	public void cleanup() throws Exception {
+		System.out.println("Cleanup task");
+	}
 }

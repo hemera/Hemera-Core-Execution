@@ -79,6 +79,8 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 				}
 			}
 		}
+		// Clean up.
+		this.task.cleanup();
 	}
 	
 	/**

@@ -34,4 +34,9 @@ public class SelfTerminatingCyclicTask implements ICyclicTask {
 	public long getCycleLimit(final TimeUnit unit) {
 		return unit.convert(500, TimeUnit.MILLISECONDS);
 	}
+
+	@Override
+	public void cleanup() throws Exception {
+		System.out.println("Cleanup task");
+	}
 }
