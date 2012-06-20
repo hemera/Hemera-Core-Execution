@@ -6,8 +6,8 @@ import hemera.core.execution.interfaces.task.ICyclicTask;
 
 public class FiniteCyclicTask implements ICyclicTask {
 	
-	public int count;
 	private long last;
+	public volatile int count;
 
 	@Override
 	public void execute() throws Exception {

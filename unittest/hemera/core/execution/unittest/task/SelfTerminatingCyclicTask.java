@@ -3,11 +3,19 @@ package hemera.core.execution.unittest.task;
 import java.util.concurrent.TimeUnit;
 
 import hemera.core.execution.interfaces.task.ICyclicTask;
+import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 
-public class InfiniteCyclicTask implements ICyclicTask {
-	
+public class SelfTerminatingCyclicTask implements ICyclicTask {
+
+	private final int terminatingPoint;
 	private long last;
+	
 	public volatile int count;
+	public volatile ICyclicTaskHandle handle;
+	
+	public SelfTerminatingCyclicTask(final int terminatingPoint) {
+		this.terminatingPoint = terminatingPoint;
+	}
 
 	@Override
 	public void execute() throws Exception {
@@ -15,6 +23,7 @@ public class InfiniteCyclicTask implements ICyclicTask {
 		System.out.println("Executed: " + count + ". Elapsed: " + elapsed);
 		this.last = System.currentTimeMillis();
 		this.count++;
+		if (this.count == this.terminatingPoint) this.handle.terminate();
 	}
 
 	@Override

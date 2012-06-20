@@ -53,6 +53,14 @@ import java.util.concurrent.TimeUnit;
  * handled by the execution service's exception handler.
  * This guarantees the cyclic execution nature of the
  * task even when exception occurs.
+ * <p>
+ * It is very important to ensure that the task does
+ * not use the corresponding task handle to wait on
+ * itself. This will for sure cause dead-lock. Though,
+ * it is possible to cancel or terminate the task
+ * within the logic execution of the task itself using
+ * the handle, in which case, the task should be a
+ * self-terminating task.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0

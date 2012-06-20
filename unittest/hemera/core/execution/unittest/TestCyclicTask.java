@@ -9,6 +9,7 @@ import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.scalable.ScalableService;
 import hemera.core.execution.unittest.task.FiniteCyclicTask;
 import hemera.core.execution.unittest.task.InfiniteCyclicTask;
+import hemera.core.execution.unittest.task.SelfTerminatingCyclicTask;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,9 @@ public class TestCyclicTask extends TestCase implements IServiceListener {
 		this.runInfinite(service);
 		System.out.println("======================Assisted Infinite task completed========================");
 		
+		this.runSelfTerminatingInfinite(service);
+		System.out.println("======================Assisted Self-terminating Infinite task completed========================");
+		
 		service.shutdownAndWait();
 		System.out.println("Assisted Shutdown.");
 	}
@@ -43,6 +47,9 @@ public class TestCyclicTask extends TestCase implements IServiceListener {
 		
 		this.runInfinite(service);
 		System.out.println("======================Scalable Infinite task completed========================");
+		
+		this.runSelfTerminatingInfinite(service);
+		System.out.println("======================Scalable Self-terminating Infinite task completed========================");
 		
 		service.shutdownAndWait();
 		System.out.println("Scalable Shutdown.");
@@ -66,6 +73,15 @@ public class TestCyclicTask extends TestCase implements IServiceListener {
 		final int expected = (int)(waitseconds*multiplier);
 		final int diff = Math.abs(expected-infinitetask.count);
 		assertTrue(diff<2);
+	}
+	
+	private void runSelfTerminatingInfinite(final IExecutionService service) throws Exception {
+		final int terminatingPoint = 17;
+		final SelfTerminatingCyclicTask task = new SelfTerminatingCyclicTask(terminatingPoint);
+		final ICyclicTaskHandle handle = service.submit(task);
+		task.handle = handle;
+		handle.await();
+		assertEquals(terminatingPoint, task.count);
 	}
 	
 	@Override

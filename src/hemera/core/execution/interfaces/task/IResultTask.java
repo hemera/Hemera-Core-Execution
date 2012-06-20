@@ -25,6 +25,13 @@ package hemera.core.execution.interfaces.task;
  * taken, such cases could cause thread-safety issues
  * within the task logic.
  * <p>
+ * It is very important to ensure that the task does
+ * not use the corresponding task handle to wait on
+ * itself. This will for sure cause dead-lock. Though,
+ * it is possible to cancel the task within the logic
+ * execution of the task itself using the handle, in
+ * which case the task would be a self-canceling task.
+ * <p>
  * @param <R> The result task result return type.
  *
  * @author Yi Wang (Neakor)
