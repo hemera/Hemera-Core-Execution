@@ -30,9 +30,9 @@ public abstract class ExecutionService implements IExecutionService {
 	 */
 	protected final IExceptionHandler handler;
 	/**
-	 * The <code>ListenerWrapper</code> instance.
+	 * The <code>IServiceListener</code> instance.
 	 */
-	protected final ListenerWrapper listenerWrapper;
+	protected final IServiceListener listener;
 	/**
 	 * The <code>AtomicBoolean</code> activated flag.
 	 * <p>
@@ -61,7 +61,7 @@ public abstract class ExecutionService implements IExecutionService {
 		if (handler == null) throw new IllegalArgumentException("Exception handler cannot be null.");
 		else if (listener == null) throw new IllegalArgumentException("Service listener cannot be null.");
 		this.handler = handler;
-		this.listenerWrapper = new ListenerWrapper(listener, this.handler);
+		this.listener = new ListenerWrapper(listener, this.handler);
 		this.activated = new AtomicBoolean(false);
 		this.shutdown = new AtomicBoolean(false);
 		// Add exception handler as system shutdown hook.

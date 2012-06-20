@@ -254,7 +254,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		final boolean succeeded = this.executors.offer(executor);
 		// Maximum capacity reached, notify listener.
 		if (!succeeded) {
-			this.listenerWrapper.capacityReached();
+			this.listener.capacityReached();
 			return null;
 		} else {
 			executor.start();

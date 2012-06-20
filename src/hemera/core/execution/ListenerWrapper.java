@@ -24,7 +24,7 @@ import hemera.core.execution.interfaces.IServiceListener;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public class ListenerWrapper implements IServiceListener {
+class ListenerWrapper implements IServiceListener {
 	/**
 	 * The <code>IServiceListener</code> instance.
 	 */
@@ -61,7 +61,7 @@ public class ListenerWrapper implements IServiceListener {
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance used by the service.
 	 */
-	public ListenerWrapper(final IServiceListener listener, final IExceptionHandler handler) {
+	ListenerWrapper(final IServiceListener listener, final IExceptionHandler handler) {
 		this.listener = listener;
 		this.handler = handler;
 		this.lock = new ReentrantLock();
