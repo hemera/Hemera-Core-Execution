@@ -165,4 +165,12 @@ public interface IExecutionService {
 	 * @return The <code>int</code> number of executors.
 	 */
 	public int getCurrentExecutorCount();
+	
+	/**
+	 * Retrieve the exception handler used by the
+	 * execution service to handle exceptions that
+	 * occur during task executions.
+	 * @return The <code>IExceptionHandler</code>.
+	 */
+	public IExceptionHandler getExceptionHandler();
 }

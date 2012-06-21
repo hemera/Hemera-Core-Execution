@@ -32,4 +32,9 @@ public class FiniteCyclicTask implements ICyclicTask {
 	public void cleanup() throws Exception {
 		System.out.println("Cleanup task");
 	}
+
+	@Override
+	public void signalTerminate() throws Exception {
+		System.out.println("Signal terminate");
+	}
 }

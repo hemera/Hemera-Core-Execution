@@ -200,4 +200,9 @@ public abstract class ExecutionService implements IExecutionService {
 		else if (this.shutdown.get()) throw new IllegalStateException("Service has already been shutdown.");
 		else if (task == null) throw new IllegalArgumentException("Task is null.");
 	}
+	
+	@Override
+	public final IExceptionHandler getExceptionHandler() {
+		return this.handler;
+	}
 }

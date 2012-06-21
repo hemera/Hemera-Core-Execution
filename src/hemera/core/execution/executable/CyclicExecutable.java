@@ -102,5 +102,10 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 	@Override
 	public void terminate() {
 		this.terminated = true;
+		try {
+			this.task.signalTerminate();
+		} catch (final Exception e) {
+			this.handler.handle(e);
+		}
 	}
 }

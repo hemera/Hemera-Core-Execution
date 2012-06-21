@@ -46,7 +46,12 @@ import java.util.concurrent.TimeUnit;
  * <code>ICyclicTask</code> may be terminated with the
  * <code>ICyclicTaskHandle</code>. The handle is
  * returned upon success of submission of the cyclic
- * task.
+ * task. When termination is requested by the handle,
+ * the task <code>signalTerminate</code> is invoked
+ * to allow the task to wake up the execution logic if
+ * it is blocked. This allows the execution logic to
+ * contain blocking operations, but still allow the
+ * task to terminate when requested.
  * <p>
  * If an exception occurs during an execution cycle, the
  * task will not terminate, and the exception will be
@@ -93,6 +98,17 @@ public interface ICyclicTask {
 	 * @throws Exception If any cleanup failed.
 	 */
 	public void cleanup() throws Exception;
+	
+	/**
+	 * Signal the task to terminate.
+	 * <p>
+	 * This method should be used to implement any signal
+	 * logic that wakes up the execution logic if it is
+	 * blocked, so the task can be terminated when it is
+	 * requested to terminate.
+	 * @throws Exception If any signaling failed.
+	 */
+	public void signalTerminate() throws Exception;
 	
 	/**
 	 * Retrieve the number of cycles this task should
