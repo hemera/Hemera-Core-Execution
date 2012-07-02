@@ -13,7 +13,7 @@ import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IEventTaskHandle;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
-import hemera.core.utility.AtomicCyclicInteger;
+import hemera.core.utility.data.AtomicCyclicInteger;
 
 /**
  * <code>AssistedService</code> defines a execution
