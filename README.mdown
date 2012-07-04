@@ -15,7 +15,7 @@ performance.
 
 # License
 
-**Hemera Engine - Core Execution** is available under the MIT license:
+**Hemera - Core Execution** is available under the MIT license:
 
 *Copyright (c) 2012 Yi Wang (hemera)*
 
