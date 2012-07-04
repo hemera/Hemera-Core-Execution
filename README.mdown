@@ -1,5 +1,5 @@
 # Hemera
-Created by **Yi Wang (Neakor)**
+Created by **Yi Wang (Neakor, hemera)**
 
 **Please note that this is one of the building blocks of the Hemera
 Application Platform. Please refer to [Hemera-Release](https://github.com/hemera/Hemera-Release)
@@ -17,7 +17,7 @@ performance.
 
 **Hemera - Core Execution** is available under the MIT license:
 
-*Copyright (c) 2012 Yi Wang (hemera)*
+*Copyright (c) 2012 Yi Wang (Neakor, hemera)*
 
 *Permission is hereby granted, free of charge, to any person obtaining a copy*
 *of this software and associated documentation files (the "Software"), to deal*
