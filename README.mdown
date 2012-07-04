@@ -3,7 +3,7 @@ Created by **Yi Wang (Neakor)**
 
 **Please note that this is one of the building blocks of the Hemera
 Application Platform. Please refer to [Hemera-Release](https://github.com/hemera/Hemera-Release)
-for the stable releases and [documentation](https://github.com/hemera/Hemera-Release/wiki).**
+for the complete stable releases and [documentation](https://github.com/hemera/Hemera-Release/wiki).**
 
 # Hemera - Core Execution
 
