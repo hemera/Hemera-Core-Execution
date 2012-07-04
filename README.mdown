@@ -1,18 +1,15 @@
-# Hemera Engine - Core Execution
+# Hemera
+Created by **Yi Wang (Neakor)**
 
-Created by **Yi Wang (hemera)**
+**Please note that this is one of the building blocks of the Hemera
+Application Platform. Please refer to [Hemera-Release](https://github.com/hemera/Hemera-Release)
+for the stable releases and [documentation](https://github.com/hemera/Hemera-Release/wiki).**
 
-**Hemera Engine - Core Execution** defines one of the core projects that
-together form the basis of the engine. It provides the fundamental execution
-layer of the runtime environment, with high concurrency capabilities to
+# Hemera - Core Execution
+
+**Hemera - Core Execution** provides the fundamental execution layer
+of the runtime environment, with high concurrency capabilities to
 allow the application logic fully utilize the underlying hardware.
-
-# Documentation
-There are two types of execution services provided by the project. The
-ScalableService and the AssistedService. ScalableService allows the number
-of execution threads to grow as demand increases. Assisted service uses
-work-stealing design to best utilize system resources. Please see individual
-interface documentations for details.
 
 # License
 
