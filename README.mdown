@@ -8,8 +8,10 @@ for the stable releases and [documentation](https://github.com/hemera/Hemera-Rel
 # Hemera - Core Execution
 
 **Hemera - Core Execution** provides the fundamental execution layer
-of the runtime environment, with high concurrency capabilities to
-allow the application logic fully utilize the underlying hardware.
+of the runtime environment. The execution services provide high concurrency
+capabilities to allow the runtime environment logic fully utilize the
+underlying hardware, in order to maximize throughput and concurrency
+performance.
 
 # License
 
