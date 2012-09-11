@@ -5,7 +5,7 @@ import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.scalable.ScalableService;
-import hemera.core.utility.logging.CLogging;
+import hemera.core.utility.logging.LoggingConfig;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +20,7 @@ public class AbstractScalableTest extends TestCase implements IServiceListener {
 	protected final TimeUnit timeoutUnit;
 	
 	public AbstractScalableTest() {
-		CLogging.Directory.setValue("/Workspace/Hemera/LocalLog/");
+		LoggingConfig.Directory.setValue("/Workspace/Hemera/LocalLog/");
 		this.min = 20;
 		this.max = 100;
 		this.timeoutValue = 200;
