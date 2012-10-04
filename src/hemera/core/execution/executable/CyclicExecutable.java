@@ -1,6 +1,9 @@
 package hemera.core.execution.executable;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.task.ICyclicTask;
@@ -25,6 +28,14 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 	 */
 	private final IExceptionHandler handler;
 	/**
+	 * The execution cycle waiting <code>Lock</code>.
+	 */
+	private final Lock waitLock;
+	/**
+	 * The execution cycle waiting <code>Condition</code>.
+	 */
+	private final Condition waitCondition;
+	/**
 	 * The <code>boolean</code> terminated flag.
 	 * <p>
 	 * The memory visibility of this flag needs to be
@@ -44,6 +55,9 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 		super();
 		this.task = task;
 		this.handler = handler;
+		this.waitLock = new ReentrantLock();
+		this.waitCondition = this.waitLock.newCondition();
+		this.terminated = false;
 	}
 	
 	@Override
@@ -51,7 +65,7 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 		final long maxDuration = this.task.getCycleLimit(TimeUnit.NANOSECONDS);
 		// Execute until it should terminate.
 		int count = 0;
-		while (true) {
+		while (!this.terminated) {
 			// Record execution duration.
 			final long start = System.nanoTime();
 			// Execute.
@@ -66,15 +80,21 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 			// Check if we should terminate.
 			final boolean shouldTerminate = this.shouldTerminate(count);
 			if (shouldTerminate) break;
-			// Otherwise try to sleep for the remaining of the cycle.
+			// Otherwise try to wait for the remaining of the cycle.
 			else {
 				final long end = System.nanoTime();
 				final long remaining = maxDuration - (end-start);
 				if (remaining > 0) {
+					this.waitLock.lock();
 					try {
-						TimeUnit.NANOSECONDS.sleep(remaining);
+						// Double check terminated status before entering wait while holding lock.
+						if (!this.terminated) {
+							this.waitCondition.awaitNanos(remaining);
+						}
 					} catch (final InterruptedException e) {
 						this.handler.handle(e);
+					} finally {
+						this.waitLock.unlock();
 					}
 				}
 			}
@@ -106,6 +126,13 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 			this.task.signalTerminate();
 		} catch (final Exception e) {
 			this.handler.handle(e);
+		}
+		// Signal waiting.
+		this.waitLock.lock();
+		try {
+			this.waitCondition.signalAll();
+		} finally {
+			this.waitLock.unlock();
 		}
 	}
 }

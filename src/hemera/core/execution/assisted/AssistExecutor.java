@@ -138,7 +138,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// Eager idling.
 		this.lock.lock();
 		try {
-			// Check for termination.
+			// Check for termination before entering idling while holding lock.
 			if (this.hasRequestedTermination()) return;
 			// Do not go into idling if there are tasks.
 			else if (!this.buffer.isEmpty()) return;

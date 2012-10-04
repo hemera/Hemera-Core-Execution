@@ -168,7 +168,7 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		boolean signaled = true;
 		this.lock.lock();
 		try {
-			// Check for termination.
+			// Check for termination before entering idling while holding lock.
 			if (this.hasRequestedTermination()) return;
 			// Do not go into waiting if there is a task.
 			else if (this.task.get() != null) return;
