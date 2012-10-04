@@ -2,6 +2,7 @@ package hemera.core.execution;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import hemera.core.execution.executable.CyclicExecutable;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
 import hemera.core.execution.interfaces.task.ICyclicTask;
@@ -73,6 +74,14 @@ public abstract class Executor implements IExecutor {
 	 * visibility of this flag needs to be guaranteed.
 	 */
 	private volatile boolean threadTerminated;
+	/**
+	 * The current <code>CyclicExecutable</code> instance.
+	 * This field is written right before the executable
+	 * is executed and read during executor shutdown.
+	 * <code>null</code> if there are no current cyclic
+	 * executable being executed.
+	 */
+	protected volatile CyclicExecutable currentCyclicExecutable;
 	
 	/**
 	 * Constructor of <code>Executor</code>.
@@ -107,11 +116,11 @@ public abstract class Executor implements IExecutor {
 	}
 	
 	/**
-	 * Perform the actual executor running logic in a
+	 * Perform the actual executor running logic for a
 	 * single execution cycle.
 	 * @throws Exception If any execution failed. This
 	 * exception does not cause thread termination. It
-	 * is gracefully handled by the exeception handler.
+	 * is gracefully handled by the exception handler.
 	 */
 	protected abstract void doRun() throws Exception;
 
@@ -130,6 +139,10 @@ public abstract class Executor implements IExecutor {
 	@Override
 	public void requestTerminate() {
 		this.requestedTermination = true;
+		// Signal cyclic executable to terminate.
+		if (this.currentCyclicExecutable != null) {
+			this.currentCyclicExecutable.terminate();
+		}
 	}
 
 	/**

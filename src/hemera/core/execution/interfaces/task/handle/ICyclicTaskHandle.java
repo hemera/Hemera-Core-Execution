@@ -11,6 +11,10 @@ package hemera.core.execution.interfaces.task.handle;
  * not be executed at all. If the cyclic execution has
  * started, the task will terminate as soon as the
  * current cycle completes.
+ * <p>
+ * <code>ICyclicTaskHandle</code> is automatically
+ * invoked to terminate the corresponding cyclic task
+ * during execution service shutdown.
  *
  * @author Yi Wang (Neakor)
  * @version 1.0.0

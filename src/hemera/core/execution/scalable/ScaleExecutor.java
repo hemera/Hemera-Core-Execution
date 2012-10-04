@@ -147,6 +147,14 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 		final EventExecutable executable = this.task.getAndSet(null);
 		// Initial activation cycle will not have a task yet.
 		if (executable != null) {
+			// If executable is cyclic, retain the reference for
+			// executor termination.
+			if (executable instanceof CyclicExecutable) {
+				this.currentCyclicExecutable = (CyclicExecutable)executable;
+			} else {
+				this.currentCyclicExecutable = null;
+			}
+			// Execute.
 			executable.execute();
 			// Recycle for more tasks only after executing one task.
 			// This prevents the case where a new on-demand executor is

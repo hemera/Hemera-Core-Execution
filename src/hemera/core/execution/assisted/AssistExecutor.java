@@ -121,6 +121,14 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// other assisting executors poll from tail.
 		EventExecutable executable = this.buffer.pollFirst();
 		while (executable != null) {
+			// If executable is cyclic, retain the reference for
+			// executor termination.
+			if (executable instanceof CyclicExecutable) {
+				this.currentCyclicExecutable = (CyclicExecutable)executable;
+			} else {
+				this.currentCyclicExecutable = null;
+			}
+			// Execute.
 			executable.execute();
 			executable = this.buffer.pollFirst();
 		}
@@ -143,7 +151,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 			this.lock.unlock();
 		}
 	}
-	
+
 	/**
 	 * Signal idling to wake up.
 	 */
@@ -162,14 +170,14 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		// Wake up idling.
 		this.wakeup();
 	}
-	
+
 	@Override
 	protected IEventTaskHandle doAssign(final IEventTask task) {
 		final EventExecutable executable = new EventExecutable(task);
 		this.doAssign(executable);
 		return executable;
 	}
-	
+
 	@Override
 	protected ICyclicTaskHandle doAssign(final ICyclicTask task) {
 		final CyclicExecutable executable = new CyclicExecutable(task, this.handler);
@@ -183,7 +191,7 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 		this.doAssign(executable);
 		return executable;
 	}
-	
+
 	/**
 	 * Perform the assignment of given executable.
 	 * @param <E> The <code>EventExecutable</code>
