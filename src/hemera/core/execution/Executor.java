@@ -33,7 +33,7 @@ public abstract class Executor implements IExecutor {
 	 * The executing <code>Thread</code> of this
 	 * executor.
 	 */
-	private final Thread thread;
+	final Thread thread;
 	/**
 	 * The <code>IExceptionHandler</code> used for
 	 * task execution graceful exception handling.

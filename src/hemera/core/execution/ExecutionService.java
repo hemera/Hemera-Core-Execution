@@ -54,13 +54,14 @@ public abstract class ExecutionService implements IExecutionService {
 	 * Constructor of <code>ExecutionService</code>.
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance.
-	 * @param listener The <code>IServiceListener</code>
+	 * @param listener The <code>AbstractServiceListener</code>
 	 * instance.
 	 */
-	public ExecutionService(final IExceptionHandler handler, final IServiceListener listener) {
+	public ExecutionService(final IExceptionHandler handler, final AbstractServiceListener listener) {
 		if (handler == null) throw new IllegalArgumentException("Exception handler cannot be null.");
 		else if (listener == null) throw new IllegalArgumentException("Service listener cannot be null.");
 		this.handler = handler;
+		listener.setExecutionService(this);
 		this.listener = new ListenerWrapper(listener, this.handler);
 		this.activated = new AtomicBoolean(false);
 		this.shutdown = new AtomicBoolean(false);
@@ -201,6 +202,13 @@ public abstract class ExecutionService implements IExecutionService {
 		else if (task == null) throw new IllegalArgumentException("Task is null.");
 	}
 	
+	/**
+	 * Retrieve all the currently active executors.
+	 * @return The <code>Iterable</code> of all the
+	 * <code>Executor</code> instances.
+	 */
+	protected abstract Iterable<Executor> getExecutors();
+
 	@Override
 	public final IExceptionHandler getExceptionHandler() {
 		return this.handler;

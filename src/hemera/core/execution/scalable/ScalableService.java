@@ -1,5 +1,6 @@
 package hemera.core.execution.scalable;
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -7,10 +8,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import hemera.core.execution.AbstractServiceListener;
 import hemera.core.execution.ExecutionService;
+import hemera.core.execution.Executor;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutor;
-import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.interfaces.scalable.IScaleExecutor;
 import hemera.core.execution.interfaces.task.ICyclicTask;
@@ -89,7 +91,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	 * Constructor of <code>ScalableService</code>.
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance.
-	 * @param listener The <code>IServiceListener</code>
+	 * @param listener The <code>AbstractServiceListener</code>
 	 * instance.
 	 * @param min The <code>int</code> minimum number
 	 * of executors the service can shrink down to.
@@ -100,7 +102,7 @@ public class ScalableService extends ExecutionService implements IScalableServic
 	 * @param timeoutUnit The <code>TimeUnit</code> the
 	 * timeout value is in.
 	 */
-	public ScalableService(final IExceptionHandler handler, final IServiceListener listener,
+	public ScalableService(final IExceptionHandler handler, final AbstractServiceListener listener,
 			final int min, final int max, final long timeoutValue, final TimeUnit timeoutUnit) {
 		super(handler, listener);
 		this.minCount = min;
@@ -291,6 +293,16 @@ public class ScalableService extends ExecutionService implements IScalableServic
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	protected Iterable<Executor> getExecutors() {
+		final ArrayList<Executor> executors = new ArrayList<Executor>(this.maxCount);
+		for (final IScaleExecutor e : this.executors) {
+			final Executor executor = (Executor)e;
+			executors.add(executor);
+		}
+		return executors;
 	}
 
 	@Override

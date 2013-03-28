@@ -3,8 +3,8 @@ package hemera.core.execution.listener;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import hemera.core.execution.AbstractServiceListener;
 import hemera.core.execution.exception.LogExceptionHandler;
-import hemera.core.execution.interfaces.IServiceListener;
 
 /**
  * <code>LogServiceListener</code> defines the
@@ -16,7 +16,7 @@ import hemera.core.execution.interfaces.IServiceListener;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public class LogServiceListener implements IServiceListener {
+public class LogServiceListener extends AbstractServiceListener {
 	/**
 	 * The <code>Logger</code> instance.
 	 */
@@ -30,8 +30,9 @@ public class LogServiceListener implements IServiceListener {
 	}
 
 	@Override
-	public void capacityReached() {
+	protected void capacityReached(final String stacktrace) {
 		this.logger.warning("Execution service maximum processing capacity reached!");
+		this.logger.warning(stacktrace);
 	}
 
 	@Override

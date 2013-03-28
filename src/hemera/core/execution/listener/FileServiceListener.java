@@ -2,7 +2,7 @@ package hemera.core.execution.listener;
 
 import java.util.concurrent.TimeUnit;
 
-import hemera.core.execution.interfaces.IServiceListener;
+import hemera.core.execution.AbstractServiceListener;
 import hemera.core.utility.logging.FileLogger;
 
 /**
@@ -15,7 +15,7 @@ import hemera.core.utility.logging.FileLogger;
  * @author Yi Wang (Neakor)
  * @version 1.0.0
  */
-public class FileServiceListener implements IServiceListener {
+public class FileServiceListener extends AbstractServiceListener {
 	/**
 	 * The <code>FileLogger</code> instance.
 	 */
@@ -29,8 +29,9 @@ public class FileServiceListener implements IServiceListener {
 	}
 
 	@Override
-	public void capacityReached() {
+	protected void capacityReached(final String stacktrace) {
 		this.logger.warning("Execution service maximum processing capacity reached!");
+		this.logger.warning(stacktrace);
 	}
 
 	@Override

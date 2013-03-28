@@ -4,11 +4,11 @@ import hemera.core.execution.assisted.AssistedService;
 import hemera.core.execution.exception.LogExceptionHandler;
 import hemera.core.execution.interfaces.IExceptionHandler;
 import hemera.core.execution.interfaces.IExecutionService;
-import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
 import hemera.core.execution.interfaces.scalable.IScalableService;
 import hemera.core.execution.interfaces.task.IResultTask;
 import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
+import hemera.core.execution.listener.LogServiceListener;
 import hemera.core.execution.scalable.ScalableService;
 import hemera.core.execution.unittest.task.IOResultTask;
 
@@ -52,7 +52,7 @@ import junit.framework.TestCase;
  * ScalableService MinCount-700 MaxCount-1000 Cost: 41287ms
  * Difference: 52.0%
  */
-public class CompareTest extends TestCase implements IServiceListener {
+public class CompareTest extends TestCase {
 	
 	private final int executorCount = 1000;
 	private final int scalableExecutorMin = (int)(this.executorCount*0.7);
@@ -60,6 +60,7 @@ public class CompareTest extends TestCase implements IServiceListener {
 	private final IResultTask<Integer>[] tasks = new IResultTask[10000];
 	private final int[] taskValues = new int[this.tasks.length];
 	private final long taskDuration = 2000;
+	private final LogServiceListener listener = new LogServiceListener();
 	
 	private long assistedCost;
 	private long scalableCost;
@@ -98,7 +99,7 @@ public class CompareTest extends TestCase implements IServiceListener {
 	private void runAssistedService() throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
 		final int buffersize = this.executorCount;
-		final IAssistedService service = new AssistedService(handler, this, this.executorCount, buffersize, 200, TimeUnit.MILLISECONDS);
+		final IAssistedService service = new AssistedService(handler, this.listener, this.executorCount, buffersize, 200, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("AssistedService activated.");
 
@@ -111,7 +112,8 @@ public class CompareTest extends TestCase implements IServiceListener {
 	
 	private void runScalableService() throws Exception {
 		final IExceptionHandler handler = new LogExceptionHandler();
-		final IScalableService service = new ScalableService(handler, this, this.scalableExecutorMin, this.executorCount, this.taskDuration/10, TimeUnit.MILLISECONDS);
+		final IScalableService service = new ScalableService(handler, this.listener, this.scalableExecutorMin, this.executorCount,
+				this.taskDuration/10, TimeUnit.MILLISECONDS);
 		service.activate();
 		System.out.println("ScalableService activated.");
 
@@ -146,15 +148,5 @@ public class CompareTest extends TestCase implements IServiceListener {
 		final long end = System.nanoTime();
 		final long duration = TimeUnit.NANOSECONDS.toMillis((end-start));
 		return duration;
-	}
-	
-	@Override
-	public void capacityReached() {
-		System.err.println("Service capcity reached!!!");
-	}
-
-	@Override
-	public long getFrequency(final TimeUnit unit) {
-		return unit.convert(5, TimeUnit.SECONDS);
 	}
 }

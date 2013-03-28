@@ -1,10 +1,12 @@
 package hemera.core.execution.assisted;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import hemera.core.execution.AbstractServiceListener;
 import hemera.core.execution.ExecutionService;
+import hemera.core.execution.Executor;
 import hemera.core.execution.interfaces.IExceptionHandler;
-import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.execution.interfaces.assisted.IAssistExecutor;
 import hemera.core.execution.interfaces.assisted.IAssistedService;
 import hemera.core.execution.interfaces.task.ICyclicTask;
@@ -52,7 +54,7 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 * Constructor of <code>AssistedService</code>.
 	 * @param handler The <code>IExceptionHandler</code>
 	 * instance.
-	 * @param listener The <code>IServiceListener</code>
+	 * @param listener The <code>AbstractServiceListener</code>
 	 * instance.
 	 * @param count The <code>int</code> number of
 	 * executors this service should create.
@@ -63,7 +65,7 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 * @param idleunit The <code>TimeUnit</code> eager-
 	 * idling waiting time unit.
 	 */
-	public AssistedService(final IExceptionHandler handler, final IServiceListener listener, final int count,
+	public AssistedService(final IExceptionHandler handler, final AbstractServiceListener listener, final int count,
 			final int maxBufferSize, final long idletime, final TimeUnit idleunit) {
 		super(handler, listener);
 		this.executors = new IAssistExecutor[count];
@@ -164,6 +166,15 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 			}
 		}
 		return assisted;
+	}
+	
+	@Override
+	protected Iterable<Executor> getExecutors() {
+		final ArrayList<Executor> executors = new ArrayList<Executor>(this.executors.length);
+		for (int i = 0; i < this.executors.length; i++) {
+			executors.add((Executor)this.executors[i]);
+		}
+		return executors;
 	}
 
 	@Override
