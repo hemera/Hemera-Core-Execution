@@ -13,7 +13,7 @@ import hemera.core.utility.logging.FileLogger;
  * at the warning logging level.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class FileServiceListener extends AbstractServiceListener {
 	/**

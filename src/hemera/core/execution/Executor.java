@@ -26,7 +26,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * issues.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class Executor implements IExecutor {
 	/**

@@ -23,7 +23,7 @@ import hemera.core.utility.data.AtomicCyclicInteger;
  * interface <code>IAssistedService</code>.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class AssistedService extends ExecutionService implements IAssistedService {
 	/**

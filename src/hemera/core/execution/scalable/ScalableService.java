@@ -28,7 +28,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * interface <code>IScalableService</code>.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class ScalableService extends ExecutionService implements IScalableService {
 	/**

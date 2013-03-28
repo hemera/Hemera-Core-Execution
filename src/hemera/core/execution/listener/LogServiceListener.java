@@ -14,7 +14,7 @@ import hemera.core.execution.exception.LogExceptionHandler;
  * every 10 seconds at the warning logging level.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class LogServiceListener extends AbstractServiceListener {
 	/**

@@ -21,7 +21,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * all types of execution services.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class ExecutionService implements IExecutionService {
 	/**

@@ -10,7 +10,7 @@ import hemera.core.utility.logging.FileLogger;
  * occurs.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class AbstractServiceListener implements IServiceListener {
 	/**
