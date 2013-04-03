@@ -15,7 +15,7 @@ import hemera.core.execution.interfaces.task.handle.ICyclicTaskHandle;
  * the task handle for the contained task.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class CyclicExecutable extends EventExecutable implements ICyclicTaskHandle {
 	/**
@@ -118,7 +118,7 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 		if (cycleCount <= 0) return this.terminated;
 		else return (this.terminated || (count >= cycleCount));
 	}
-
+	
 	@Override
 	public void terminate() {
 		this.terminated = true;
@@ -134,5 +134,13 @@ public class CyclicExecutable extends EventExecutable implements ICyclicTaskHand
 		} finally {
 			this.waitLock.unlock();
 		}
+	}
+
+	/**
+	 * Retrieve the cyclic task this executable contains.
+	 * @return The <code>ICyclicTask</code> instance.
+	 */
+	public ICyclicTask getTask() {
+		return this.task;
 	}
 }

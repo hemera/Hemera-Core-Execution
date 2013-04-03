@@ -28,7 +28,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * <code>IAssistExecutor</code>.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class AssistExecutor extends Executor implements IAssistExecutor {
 	/**
@@ -125,11 +125,12 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 			// executor termination.
 			if (executable instanceof CyclicExecutable) {
 				this.currentCyclicExecutable = (CyclicExecutable)executable;
-			} else {
-				this.currentCyclicExecutable = null;
 			}
 			// Execute.
 			executable.execute();
+			// Reset cyclic executable reference.
+			this.currentCyclicExecutable = null;
+			// Poll next task.
 			executable = this.buffer.pollFirst();
 		}
 		// Reach group to assist other executors
@@ -225,5 +226,15 @@ public class AssistExecutor extends Executor implements IAssistExecutor {
 	@Override
 	public final int getQueueLength() {
 		return this.buffer.size();
+	}
+
+	/**
+	 * Check if this executor is currently executing a
+	 * cyclic task.
+	 * @return <code>true</code> if the executor is
+	 * executing a cyclic task. <code>false</code> otherwise.
+	 */
+	boolean isExecutingCyclicTask() {
+		return (this.currentCyclicExecutable != null);
 	}
 }

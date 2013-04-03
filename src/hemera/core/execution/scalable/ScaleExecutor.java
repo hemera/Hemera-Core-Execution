@@ -26,7 +26,7 @@ import hemera.core.execution.interfaces.task.handle.IResultTaskHandle;
  * <code>IScaleExecutor</code>.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class ScaleExecutor extends Executor implements IScaleExecutor {
 	/**
@@ -151,11 +151,11 @@ public class ScaleExecutor extends Executor implements IScaleExecutor {
 			// executor termination.
 			if (executable instanceof CyclicExecutable) {
 				this.currentCyclicExecutable = (CyclicExecutable)executable;
-			} else {
-				this.currentCyclicExecutable = null;
 			}
 			// Execute.
 			executable.execute();
+			// Reset cyclic executable reference.
+			this.currentCyclicExecutable = null;
 			// Recycle for more tasks only after executing one task.
 			// This prevents the case where a new on-demand executor is
 			// created and will be assigned with the task that triggered

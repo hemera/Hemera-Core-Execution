@@ -23,7 +23,7 @@ import hemera.core.utility.data.AtomicCyclicInteger;
  * interface <code>IAssistedService</code>.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.1
+ * @version 1.0.2
  */
 public class AssistedService extends ExecutionService implements IAssistedService {
 	/**
@@ -151,8 +151,30 @@ public class AssistedService extends ExecutionService implements IAssistedServic
 	 * @return The <code>IAssistExecutor</code>.
 	 */
 	private IAssistExecutor nextAssistExecutor() {
-		final int index = this.index.getAndIncrement();
-		return this.executors[index];
+		// Record start index.
+		final int startIndex = this.index.get();
+		// Try to find an executor that is not occupied by a cyclic task.
+		while (true) {
+			final int index = this.index.incrementAndGet();
+			final AssistExecutor executor = (AssistExecutor)this.executors[index];
+			// Ensure executor is not currently occupied with a cyclic task,
+			// in which case the executor will not be available for a new task.
+			if (!executor.isExecutingCyclicTask()) {
+				return executor;
+			}
+			// If we have rotated back to the start index, all executors
+			// are occupied by cyclic tasks, service maximum capacity has
+			// been reached.
+			if (index == startIndex) {
+				this.listener.capacityReached();
+				// Wait a bit to prevent thrashing when capacity is reached.
+				try {
+					this.idleunit.sleep(this.idletime);
+				} catch (final InterruptedException e) {
+					this.handler.handle(e);
+				}
+			}
+		}
 	}
 
 	@Override

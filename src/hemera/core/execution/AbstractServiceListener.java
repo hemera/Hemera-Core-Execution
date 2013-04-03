@@ -1,5 +1,6 @@
 package hemera.core.execution;
 
+import hemera.core.execution.executable.CyclicExecutable;
 import hemera.core.execution.interfaces.IServiceListener;
 import hemera.core.utility.logging.FileLogger;
 
@@ -10,7 +11,7 @@ import hemera.core.utility.logging.FileLogger;
  * occurs.
  *
  * @author Yi Wang (Neakor)
- * @version 1.0.1
+ * @version 1.0.2
  */
 public abstract class AbstractServiceListener implements IServiceListener {
 	/**
@@ -24,6 +25,10 @@ public abstract class AbstractServiceListener implements IServiceListener {
 		final Iterable<Executor> executors = this.servcie.getExecutors();
 		for (final Executor executor : executors) {
 			builder.append((executor.getName())).append("\n");
+			final CyclicExecutable cyclicExecutable = executor.currentCyclicExecutable;
+			if (cyclicExecutable != null) {
+				builder.append("Cyclic Task: ").append(cyclicExecutable.getTask()).append("\n");
+			}
 			builder.append(FileLogger.buildStacktrace(executor.thread.getStackTrace())).append("\n");
 		}
 		this.capacityReached(builder.toString());
